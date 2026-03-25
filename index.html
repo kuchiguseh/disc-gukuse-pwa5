@@ -11,7 +11,1391 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Zen+Maru+Gothic:wght@400;500;700<!DOCTYPE html>
 <html lang="ja">
 <head>
+<meta charset="UTF-8"><!DOCTYPE html>
+<html lang="ja">
+<head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f97316">
+<title>DISC別口ぐせ診断</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --coral: #f97316;
+    --coral-light: #fed7aa;
+    --coral-dark: #c2410c;
+    --teal: #0d9488;
+    --teal-light: #99f6e4;
+    --purple: #7c3aed;
+    --purple-light: #ede9fe;
+    --pink: #db2777;
+    --pink-light: #fce7f3;
+    --sky: #0284c7;
+    --sky-light: #e0f2fe;
+    --green: #16a34a;
+    --green-light: #dcfce7;
+    --amber: #d97706;
+    --amber-light: #fef3c7;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+    --font-main: 'Noto Sans JP', sans-serif;
+    --font-display: 'Zen Maru Gothic', sans-serif;
+    --radius: 16px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-main);
+    background: #fff8f5;
+    color: var(--gray-800);
+    min-height: 100vh;
+  }
+
+  /* ======================== SCREENS ======================== */
+  .screen { display: none !important; }
+  .screen.active { display: block !important; }
+  #screen-top.active, #screen-name.active { display: flex !important; }
+
+  /* ======================== TOP SCREEN ======================== */
+  #screen-top {
+    min-height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    background: linear-gradient(160deg, #fff8f5 0%, #fef3e2 50%, #fde8d8 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  #screen-top::before {
+    content: '';
+    position: absolute;
+    top: -100px; right: -100px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(249,115,22,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  #screen-top::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: -80px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(13,148,136,0.10) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .top-inner {
+    position: relative; z-index: 1;
+    max-width: 480px; width: 100%;
+    text-align: center;
+  }
+
+  .top-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: white;
+    border: 2px solid var(--coral-light);
+    border-radius: 100px;
+    padding: 6px 18px;
+    font-size: 13px; font-weight: 700;
+    color: var(--coral-dark);
+    margin-bottom: 24px;
+    letter-spacing: 0.05em;
+  }
+
+  .top-title {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 7vw, 42px);
+    font-weight: 900;
+    color: var(--gray-900);
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+
+  .top-title span { color: var(--coral); }
+
+  .top-subtitle {
+    font-size: 15px;
+    color: var(--gray-600);
+    margin-bottom: 36px;
+    line-height: 1.7;
+  }
+
+  .disc-types {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; margin-bottom: 36px;
+  }
+
+  .disc-type-card {
+    background: white;
+    border-radius: 12px;
+    padding: 14px;
+    text-align: left;
+    box-shadow: var(--shadow);
+    border-left: 4px solid;
+    transition: transform 0.2s;
+  }
+
+  .disc-type-card:hover { transform: translateY(-2px); }
+  .disc-type-card.d { border-color: #ef4444; }
+  .disc-type-card.i { border-color: #f59e0b; }
+  .disc-type-card.s { border-color: #10b981; }
+  .disc-type-card.c { border-color: #3b82f6; }
+
+  .disc-type-card .label {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.1em; margin-bottom: 4px;
+  }
+
+  .disc-type-card.d .label { color: #ef4444; }
+  .disc-type-card.i .label { color: #f59e0b; }
+  .disc-type-card.s .label { color: #10b981; }
+  .disc-type-card.c .label { color: #3b82f6; }
+
+  .disc-type-card .name {
+    font-size: 14px; font-weight: 700;
+    color: var(--gray-800); margin-bottom: 2px;
+  }
+
+  .disc-type-card .phrase {
+    font-size: 11px; color: var(--gray-500);
+  }
+
+  .btn-start {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    background: linear-gradient(135deg, var(--coral), #fb923c);
+    color: white;
+    border: none; border-radius: 100px;
+    padding: 18px 48px;
+    font-size: 17px; font-weight: 700;
+    font-family: var(--font-display);
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(249,115,22,0.35);
+    transition: all 0.25s;
+    width: 100%; max-width: 320px;
+    letter-spacing: 0.05em;
+  }
+
+  .btn-start:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(249,115,22,0.45);
+  }
+
+  .top-note {
+    margin-top: 16px;
+    font-size: 15px; color: var(--gray-600); font-weight: 600;
+  }
+
+  .copyright {
+    text-align: center; font-size: 14px; color: var(--gray-600);
+    font-weight: 600;
+    padding: 20px; margin-top: 8px;
+  }
+
+  /* ======================== QUIZ SCREEN ======================== */
+  #screen-quiz {
+    min-height: 100vh;
+    background: linear-gradient(160deg, #fff8f5 0%, #fef3e2 100%);
+    padding: 0 0 40px;
+  }
+
+  .quiz-header {
+    background: white;
+    padding: 20px 20px 0;
+    border-bottom: 1px solid var(--gray-100);
+    position: sticky; top: 0; z-index: 10;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  }
+
+  .quiz-header-top {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .quiz-app-name {
+    font-size: 14px; font-weight: 700; color: var(--coral);
+    font-family: var(--font-display);
+  }
+
+  .quiz-progress-text {
+    font-size: 13px; font-weight: 600; color: var(--gray-600);
+  }
+
+  .progress-bar-track {
+    height: 6px; background: var(--gray-100);
+    border-radius: 100px; overflow: hidden;
+    margin-bottom: 12px;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--coral), #fb923c);
+    border-radius: 100px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .quiz-body {
+    padding: 32px 20px 0;
+    max-width: 540px; margin: 0 auto;
+  }
+
+  .question-num {
+    font-size: 15px; font-weight: 700;
+    color: var(--coral); letter-spacing: 0.15em;
+    text-transform: uppercase; margin-bottom: 14px;
+  }
+
+  .question-text {
+    font-size: clamp(20px, 5vw, 26px);
+    font-weight: 700; line-height: 1.6;
+    color: var(--gray-900); margin-bottom: 28px;
+    font-family: var(--font-display);
+  }
+
+  .choices { display: flex; flex-direction: column; gap: 12px; }
+
+  .choice-btn {
+    display: flex; align-items: center; gap: 14px;
+    background: white;
+    border: 2px solid var(--gray-200);
+    border-radius: 14px; padding: 18px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left; width: 100%;
+    font-family: var(--font-main);
+  }
+
+  .choice-btn:hover {
+    transform: translateX(4px);
+    filter: brightness(0.97);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  }
+
+  .choice-btn.selected {
+    transform: translateX(6px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    filter: brightness(0.95);
+  }
+
+  .choice-letter {
+    width: 32px; height: 32px;
+    background: var(--gray-100);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 800; color: var(--gray-500);
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-style: italic;
+    flex-shrink: 0; margin-top: 1px;
+    transition: all 0.2s;
+    letter-spacing: 0;
+  }
+
+  .choice-btn.selected .choice-letter {
+    background: var(--coral); color: white;
+  }
+
+  .choice-content .choice-label {
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 0.08em; margin-bottom: 4px;
+  }
+
+  .choice-content .choice-text {
+    font-size: 16px; color: var(--gray-700); line-height: 1.6;
+    font-weight: 500;
+  }
+
+  /* ======================== NAME INPUT SCREEN ======================== */
+  #screen-name {
+    min-height: 100vh;
+    background: linear-gradient(160deg, #fff8f5 0%, #fef3e2 100%);
+    align-items: center; justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .name-card {
+    background: white; border-radius: 24px;
+    padding: 40px 32px; max-width: 440px; width: 100%;
+    box-shadow: var(--shadow-lg); text-align: center;
+  }
+
+  .name-icon {
+    font-size: 52px; margin-bottom: 16px;
+  }
+
+  .name-title {
+    font-family: var(--font-display);
+    font-size: 22px; font-weight: 700;
+    color: var(--gray-900); margin-bottom: 8px;
+  }
+
+  .name-desc {
+    font-size: 14px; color: var(--gray-500);
+    margin-bottom: 28px; line-height: 1.7;
+  }
+
+  .name-input {
+    width: 100%; padding: 14px 18px;
+    border: 2px solid var(--gray-200);
+    border-radius: 12px; font-size: 16px;
+    font-family: var(--font-main); font-weight: 500;
+    outline: none; transition: border-color 0.2s;
+    margin-bottom: 20px; text-align: center;
+  }
+
+  .name-input:focus { border-color: var(--coral); }
+
+  .btn-result {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: linear-gradient(135deg, var(--coral), #fb923c);
+    color: white; border: none; border-radius: 100px;
+    padding: 16px 40px; font-size: 16px; font-weight: 700;
+    font-family: var(--font-display); cursor: pointer;
+    width: 100%; box-shadow: 0 6px 20px rgba(249,115,22,0.3);
+    transition: all 0.25s; letter-spacing: 0.05em;
+  }
+
+  .btn-result:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(249,115,22,0.4); }
+
+  /* ======================== RESULT SCREEN ======================== */
+  #screen-result {
+    min-height: 100vh;
+    background: #f0f9ff;
+    padding-bottom: 60px;
+  }
+
+  .result-actions {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(8px);
+    padding: 12px 20px;
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid var(--gray-100);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+
+  .btn-pdf {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+    color: white; border: none; border-radius: 10px;
+    padding: 12px 20px; font-size: 14px; font-weight: 700;
+    font-family: var(--font-display); cursor: pointer;
+    box-shadow: 0 4px 14px rgba(59,130,246,0.35);
+    transition: all 0.2s;
+  }
+
+  .btn-pdf:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59,130,246,0.45); }
+
+  .btn-retry {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    background: white; color: var(--gray-700);
+    border: 2px solid var(--gray-200); border-radius: 10px;
+    padding: 12px 18px; font-size: 13px; font-weight: 700;
+    font-family: var(--font-main); cursor: pointer;
+    transition: all 0.2s; white-space: nowrap;
+  }
+
+  .btn-retry:hover { border-color: var(--coral); color: var(--coral); }
+
+  /* PDF preview area */
+  #pdf-preview {
+    max-width: 820px; margin: 24px auto; padding: 0 20px;
+  }
+
+  /* ======================== PDF REPORT STYLES ======================== */
+  .report-page {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  /* Header */
+  .rpt-header {
+    background: linear-gradient(135deg, #e8734a 0%, #d4603a 100%);
+    padding: 20px 28px;
+    display: flex; align-items: flex-start; justify-content: space-between;
+  }
+
+  .rpt-header-left {}
+
+  .rpt-title-main {
+    font-size: 22px; font-weight: 900; color: white;
+    font-family: var(--font-display); letter-spacing: 0.02em;
+    line-height: 1.2;
+  }
+
+  .rpt-title-sub {
+    font-size: 11px; color: rgba(255,255,255,0.85);
+    margin-top: 4px; letter-spacing: 0.05em;
+  }
+
+  .rpt-header-right { text-align: right; }
+
+  .rpt-date {
+    font-size: 11px; color: rgba(255,255,255,0.85);
+    margin-bottom: 4px;
+  }
+
+  .rpt-name {
+    font-size: 16px; font-weight: 700; color: white;
+    font-family: var(--font-display);
+  }
+
+  /* Type banner */
+  .rpt-type-banner {
+    border: 2px solid var(--gray-200);
+    margin: 20px 20px 0;
+    border-radius: 12px; padding: 16px 20px;
+    background: #fafafa;
+  }
+
+  .rpt-type-label {
+    font-size: 11px; font-weight: 600;
+    color: var(--gray-500); letter-spacing: 0.1em; margin-bottom: 6px;
+  }
+
+  .rpt-type-name {
+    font-size: 26px; font-weight: 900;
+    font-family: var(--font-display);
+    margin-bottom: 6px;
+  }
+
+  .rpt-type-desc {
+    font-size: 13px; color: var(--gray-600); line-height: 1.6;
+  }
+
+  /* Section */
+  .rpt-section {
+    margin: 14px 20px 0;
+  }
+
+  .rpt-section-title {
+    font-size: 12px; font-weight: 700; color: white;
+    letter-spacing: 0.08em; padding: 8px 14px;
+    border-radius: 8px 8px 0 0;
+    background: #6b8fa3;
+  }
+
+  .rpt-section-body {
+    border: 1px solid var(--gray-200);
+    border-top: none; border-radius: 0 0 8px 8px;
+    padding: 14px;
+    background: white;
+  }
+
+  /* Score bars */
+  .score-row {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .score-row:last-child { margin-bottom: 0; }
+
+  .score-label {
+    font-size: 12px; font-weight: 700;
+    width: 60px; flex-shrink: 0; color: var(--gray-700);
+  }
+
+  .score-bar-bg {
+    flex: 1; height: 16px; background: var(--gray-100);
+    border-radius: 100px; overflow: hidden;
+  }
+
+  .score-bar-fill {
+    height: 100%; border-radius: 100px;
+    transition: width 1s cubic-bezier(0.4,0,0.2,1);
+    min-width: 4px;
+  }
+
+  .score-count {
+    font-size: 12px; font-weight: 700;
+    width: 28px; text-align: right; color: var(--gray-700);
+  }
+
+  /* Tags */
+  .tags-row {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+
+  .tag {
+    padding: 6px 14px; border-radius: 100px;
+    font-size: 13px; font-weight: 700;
+    font-family: var(--font-display);
+  }
+
+  /* Prescription */
+  .presc-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; border-bottom: 1px solid var(--gray-100);
+  }
+
+  .presc-row:last-child { border-bottom: none; }
+
+  .presc-from {
+    font-size: 12px; font-weight: 600; color: var(--gray-700);
+    flex: 1; background: var(--gray-50); padding: 6px 10px; border-radius: 6px;
+  }
+
+  .presc-arrow {
+    font-size: 14px; color: var(--coral); flex-shrink: 0;
+  }
+
+  .presc-to {
+    font-size: 12px; font-weight: 600; color: var(--gray-800);
+    flex: 1.3; background: #f0fdf4; padding: 6px 10px; border-radius: 6px;
+    border-left: 3px solid #10b981;
+  }
+
+  /* Affirmations grid */
+  .affirm-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;
+  }
+
+  .affirm-card {
+    background: var(--gray-50); border-radius: 8px; padding: 12px;
+    text-align: center;
+  }
+
+  .affirm-main {
+    font-size: 12px; font-weight: 700; color: var(--gray-800);
+    line-height: 1.5; margin-bottom: 6px;
+  }
+
+  .affirm-ex {
+    font-size: 10px; color: var(--gray-500); line-height: 1.5;
+  }
+
+  /* Scene + practice */
+  .two-col {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+  }
+
+  .scene-item {
+    margin-bottom: 10px;
+  }
+
+  .scene-item:last-child { margin-bottom: 0; }
+
+  .scene-tag {
+    display: inline-block;
+    background: #dbeafe; color: #1d4ed8;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 100px; margin-bottom: 4px;
+  }
+
+  .scene-main {
+    font-size: 12px; font-weight: 600; color: var(--gray-800);
+    line-height: 1.5; margin-bottom: 2px;
+  }
+
+  .scene-ex {
+    font-size: 10px; color: var(--gray-500);
+  }
+
+  .practice-list { list-style: none; }
+
+  .practice-list li {
+    font-size: 12px; padding: 6px 0;
+    border-bottom: 1px solid var(--gray-100);
+    color: var(--gray-700); line-height: 1.5;
+    padding-left: 16px; position: relative;
+  }
+
+  .practice-list li:last-child { border-bottom: none; }
+
+  .practice-list li::before {
+    content: '✓'; position: absolute; left: 0;
+    color: var(--teal); font-weight: 700; font-size: 11px;
+  }
+
+  /* DISC info */
+  .disc-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+
+  .disc-card {
+    border-radius: 8px; padding: 12px;
+    border: 1px solid var(--gray-200);
+  }
+
+  .disc-card-title {
+    font-size: 13px; font-weight: 700; margin-bottom: 6px;
+  }
+
+  .disc-card-body {
+    font-size: 11px; color: var(--gray-600); line-height: 1.6;
+  }
+
+  .disc-card.d { background: #fef2f2; border-color: #fca5a5; }
+  .disc-card.d .disc-card-title { color: #dc2626; }
+  .disc-card.i { background: #fffbeb; border-color: #fcd34d; }
+  .disc-card.i .disc-card-title { color: #d97706; }
+  .disc-card.s { background: #f0fdf4; border-color: #86efac; }
+  .disc-card.s .disc-card-title { color: #16a34a; }
+  .disc-card.c { background: #eff6ff; border-color: #93c5fd; }
+  .disc-card.c .disc-card-title { color: #2563eb; }
+
+  /* Profile footer */
+  .rpt-footer {
+    margin: 14px 20px 20px;
+    border: 1px solid var(--gray-200); border-radius: 10px;
+    overflow: hidden;
+    display: grid; grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0;
+  }
+
+  .rpt-footer-photo {
+    padding: 16px;
+    background: var(--gray-50);
+    border-right: 1px solid var(--gray-200);
+  }
+
+  .rpt-footer-photo img {
+    width: 90px; height: 90px;
+    border-radius: 50%; object-fit: cover;
+    object-position: top center;
+    display: block;
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  }
+
+  .rpt-footer-info {
+    padding: 14px 16px;
+  }
+
+  .rpt-footer-role {
+    font-size: 12px; font-weight: 700; color: var(--coral);
+    letter-spacing: 0.08em; margin-bottom: 4px;
+  }
+
+  .rpt-footer-seminar {
+    font-size: 13px; font-weight: 600; color: var(--gray-800);
+    margin-bottom: 4px;
+  }
+
+  .rpt-footer-schedule {
+    font-size: 12px; color: var(--gray-500);
+  }
+
+  .rpt-footer-qr {
+    padding: 16px;
+    text-align: center;
+    border-left: 1px solid var(--gray-200);
+    background: var(--gray-50);
+  }
+
+  .rpt-footer-qr img {
+    width: 100px; height: 100px;
+    display: block;
+  }
+
+  .rpt-footer-qr-label {
+    font-size: 10px; color: var(--gray-500); margin-top: 4px;
+  }
+
+  .rpt-footer-btn {
+    display: inline-flex; align-items: center;
+    background: var(--coral); color: white;
+    border-radius: 100px; padding: 5px 14px;
+    font-size: 11px; font-weight: 700;
+    font-family: var(--font-display);
+    text-decoration: none; margin-top: 6px;
+  }
+
+  /* Bottom bar */
+  .rpt-bottom-bar {
+    display: none;
+  }
+
+  /* ======================== PRINT STYLES ======================== */
+  @media print {
+    @page { size: A4; margin: 6mm; }
+    body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .result-actions { display: none !important; }
+    #pdf-preview { margin: 0; padding: 0; max-width: 100%; }
+    .report-page { box-shadow: none; border-radius: 0; font-size: 11px; }
+    .screen:not(.active) { display: none; }
+    #screen-result { background: white; padding: 0; }
+  }
+
+  /* ======================== SMARTPHONE RESPONSIVE ======================== */
+  @media (max-width: 600px) {
+    .quiz-body { padding: 24px 16px 0; }
+    .question-text { font-size: 18px; }
+    .choice-btn { padding: 14px 14px; }
+    .choice-content .choice-text { font-size: 15px; }
+
+    .rpt-header { padding: 16px; flex-direction: column; gap: 8px; }
+    .rpt-header-right { text-align: left; }
+    .rpt-type-banner { margin: 12px 12px 0; }
+    .rpt-section { margin: 10px 12px 0; }
+    .rpt-type-name { font-size: 20px; }
+
+    .affirm-grid { grid-template-columns: 1fr; }
+    .two-col { grid-template-columns: 1fr; }
+    .disc-grid { grid-template-columns: 1fr; }
+
+    .rpt-footer { grid-template-columns: 1fr; }
+    .rpt-footer-photo { border-right: none; border-bottom: 1px solid var(--gray-200); text-align: center; }
+    .rpt-footer-photo img { margin: 0 auto; }
+    .rpt-footer-qr { border-left: none; border-top: 1px solid var(--gray-200); }
+    .rpt-footer-qr img { margin: 0 auto; }
+
+    .result-actions { flex-direction: column; }
+    .btn-pdf, .btn-retry { width: 100%; }
+
+    #pdf-preview { padding: 0 8px; }
+    .report-page { border-radius: 12px; font-size: 12px; }
+  }
+
+  /* ======================== ANIMATIONS ======================== */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .fade-in { animation: fadeInUp 0.5s ease forwards; }
+  .slide-in { animation: slideIn 0.3s ease forwards; }
+
+  /* ======================== UTILITIES ======================== */
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- TOP SCREEN -->
+<div id="screen-top" class="screen active">
+  <div class="top-inner fade-in">
+    <div class="top-badge">🌸 DISC別口ぐせ診断</div>
+    <h1 class="top-title">あなたの<span>言葉</span>が<br>人生を変える</h1>
+    <p class="top-subtitle">10問に答えるだけで、あなたのタイプと<br>"今のあなたに合う言葉"がわかります</p>
+
+
+    <button class="btn-start" onclick="startQuiz()">
+      ✨ 診断をはじめる
+    </button>
+    <p class="top-note">約3分 · 全10問</p>
+  </div>
+  <p class="copyright">© MBWC</p>
+</div>
+
+<!-- QUIZ SCREEN -->
+<div id="screen-quiz" class="screen">
+  <div class="quiz-header">
+    <div class="quiz-header-top">
+      <span class="quiz-app-name">🌸 口ぐせ診断</span>
+      <span class="quiz-progress-text" id="progress-text">1 / 10</span>
+    </div>
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="progress-bar" style="width:10%"></div>
+    </div>
+  </div>
+
+  <div class="quiz-body">
+    <div id="question-container"></div>
+  </div>
+</div>
+
+<!-- NAME INPUT SCREEN -->
+<div id="screen-name" class="screen">
+  <div class="name-card fade-in">
+    <div class="name-icon">🎉</div>
+    <h2 class="name-title">診断完了！</h2>
+    <p class="name-desc">お名前を入力すると、<br>パーソナルレポートを作成します</p>
+    <input type="text" class="name-input" id="user-name" placeholder="例）山田 花子" maxlength="20">
+    <button class="btn-result" onclick="showResult()">
+      📄 レポートを見る
+    </button>
+  </div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div id="screen-result" class="screen">
+  <div class="result-actions">
+    <button class="btn-pdf" onclick="printReport()">
+      🖨️ PDFで保存する
+    </button>
+    <button class="btn-retry" onclick="restartQuiz()">
+      🔄 もう一度
+    </button>
+  </div>
+  <div id="pdf-preview"></div>
+</div>
+
+<script>
+// ============================
+// DATA
+// ============================
+const questions = [
+  {
+    text: "新しいプロジェクトや企画を始めるとき、あなたはどうしますか？",
+    choices: [
+      { type: 'D', label: 'D', text: 'すぐに動き始める。考えながら進めばいい' },
+      { type: 'I', label: 'I', text: 'みんなを巻き込んで、楽しくスタートする' },
+      { type: 'S', label: 'S', text: 'チームの意見をしっかり聞いてから決める' },
+      { type: 'C', label: 'C', text: '計画を立て、リスクをきちんと確認してから進める' }
+    ]
+  },
+  {
+    text: "誰かに頼みごとをするとき、あなたはどんな言い方をしますか？",
+    choices: [
+      { type: 'D', label: 'D', text: '「○時までにやっておいて」と明確に伝える' },
+      { type: 'I', label: 'I', text: '「ねえ、一緒にやらない？楽しそうだよ」と誘う' },
+      { type: 'S', label: 'S', text: '「もしよかったら、お願いできますか？」と丁寧に伝える' },
+      { type: 'C', label: 'C', text: '「この手順でやってもらえると助かります」と説明する' }
+    ]
+  },
+  {
+    text: "仕事や作業でミスが起きたとき、最初に思うことは？",
+    choices: [
+      { type: 'D', label: 'D', text: 'すぐに原因を突き止めて、次の対策を考える' },
+      { type: 'I', label: 'I', text: 'まずは気持ちを立て直す。なんとかなる！' },
+      { type: 'S', label: 'S', text: '周りに迷惑をかけてしまったことが気になる' },
+      { type: 'C', label: 'C', text: 'なぜミスが起きたかを丁寧に分析する' }
+    ]
+  },
+  {
+    text: "会話の中でよく使う言葉はどれに近いですか？",
+    choices: [
+      { type: 'D', label: 'D', text: '「決めた！やろう」「今がチャンス」' },
+      { type: 'I', label: 'I', text: '「楽しそう！」「それ素敵！」' },
+      { type: 'S', label: 'S', text: '「大丈夫？」「いつもありがとう」' },
+      { type: 'C', label: 'C', text: '「ちゃんと確認しよう」「段取りが大事」' }
+    ]
+  },
+  {
+    text: "チームで意見が対立したとき、あなたはどうしますか？",
+    choices: [
+      { type: 'D', label: 'D', text: '自分の意見を明確に主張し、議論をリードする' },
+      { type: 'I', label: 'I', text: '明るい雰囲気で場を和ませながら、妥協点を探す' },
+      { type: 'S', label: 'S', text: '全員の気持ちに寄り添いながら、丁寧にまとめる' },
+      { type: 'C', label: 'C', text: 'データや事実を元に、論理的に解決策を示す' }
+    ]
+  },
+  {
+    text: "友人から「最近どう？」と聞かれたとき、あなたの答え方は？",
+    choices: [
+      { type: 'D', label: 'D', text: '「忙しいけど充実してる。○○に挑戦してるよ」' },
+      { type: 'I', label: 'I', text: '「最高！すごいことがあってね〜！」と盛り上がる' },
+      { type: 'S', label: 'S', text: '「まあまあかな。あなたは？」と相手に聞き返す' },
+      { type: 'C', label: 'C', text: '「いくつか課題があるけど、順調に進んでいます」' }
+    ]
+  },
+  {
+    text: "大切な場面で自分を鼓舞するとき、心の中でどんな言葉を使いますか？",
+    choices: [
+      { type: 'D', label: 'D', text: '「絶対できる。行くぞ！」' },
+      { type: 'I', label: 'I', text: '「楽しんだもの勝ち！なんとかなる！」' },
+      { type: 'S', label: 'S', text: '「みんながいるから大丈夫。一緒に頑張ろう」' },
+      { type: 'C', label: 'C', text: '「準備はできてる。落ち着いて確認しよう」' }
+    ]
+  },
+  {
+    text: "相手が落ち込んでいるとき、あなたはどう声をかけますか？",
+    choices: [
+      { type: 'D', label: 'D', text: '「次はどうする？一緒に考えよう」と解決策を出す' },
+      { type: 'I', label: 'I', text: '「絶対大丈夫！元気出して！」と明るく励ます' },
+      { type: 'S', label: 'S', text: '「話したいことあったら聞くよ」とそっと寄り添う' },
+      { type: 'C', label: 'C', text: '「何が原因か整理してみよう」と冷静に分析する' }
+    ]
+  },
+  {
+    text: "毎日の生活の中で、大切にしていることは？",
+    choices: [
+      { type: 'D', label: 'D', text: '目標に向かって行動し続けること' },
+      { type: 'I', label: 'I', text: '人とのつながりや、楽しい時間を大切にすること' },
+      { type: 'S', label: 'S', text: '周りの人が笑顔でいられる空間を作ること' },
+      { type: 'C', label: 'C', text: '物事を丁寧に、正確にこなすこと' }
+    ]
+  },
+  {
+    text: "自分の「口ぐせ」を振り返ったとき、一番近いのは？",
+    choices: [
+      { type: 'D', label: 'D', text: '「早くやろう」「こうすれば絶対うまくいく」系' },
+      { type: 'I', label: 'I', text: '「楽しみだね」「なんとかなる」系' },
+      { type: 'S', label: 'S', text: '「ありがとう」「無理しないでね」系' },
+      { type: 'C', label: 'C', text: '「確認しよう」「間違えたくない」系' }
+    ]
+  }
+];
+
+const typeData = {
+  D: {
+    name: '行動派のあなた',
+    letter: 'D',
+    color: '#ef4444',
+    colorLight: '#fef2f2',
+    gradientFrom: '#ef4444',
+    gradientTo: '#dc2626',
+    phrase: '自信は魅力。その強さに思いやりを少し足せば、信頼はさらに深まる。',
+    kuchiguseTop3: ['よし、やってみよう！', '今がチャンス！', '協力こそ最速の方法'],
+    tagColors: ['#ef4444', '#f59e0b', '#10b981'],
+    prescriptions: [
+      { from: '「こうして！」', to: '「こうしてもらえると助かります」' },
+      { from: '「早くして」', to: '「○時までにお願いできますか？」' },
+      { from: '「それ違う」', to: '「こうすると、もっと良くなります」' }
+    ],
+    affirmations: [
+      { main: '私は一人で\nやらなくていい', ex: '例）「みんなと一緒に進もう」' },
+      { main: '人の力を借りても\n成果は出せる', ex: '例）「頼ることも強さのひとつ」' },
+      { main: '協力こそ\n最速の方法', ex: '例）「チームで動くと早く進む」' }
+    ],
+    scenes: [
+      { tag: '相談', main: '実現するには何が必要か、一緒に考えませんか？', ex: '例）「あなたの意見も聞かせてください」' },
+      { tag: 'お願い', main: 'これを〇時までにお願いできると助かります', ex: '例）「期限を決めて動きましょう」' }
+    ],
+    practices: [
+      '朝一番に「〇〇な一日になる！」と声に出す',
+      '週替わりでテーマ口ぐせを決める',
+      '3日・3週間・3ヶ月の習慣化マイルストーンを決める'
+    ]
+  },
+  I: {
+    name: '社交派のあなた',
+    letter: 'I',
+    color: '#f59e0b',
+    colorLight: '#fffbeb',
+    gradientFrom: '#f59e0b',
+    gradientTo: '#d97706',
+    phrase: '周りをポジティブに染める"ひまわり"です。明るさを、安心と行動の後押しに変えて届けよう。',
+    kuchiguseTop3: ['楽しみだね！', 'それ素敵！', 'こうすればうまくいく！'],
+    tagColors: ['#f59e0b', '#10b981', '#3b82f6'],
+    prescriptions: [
+      { from: '「たぶん大丈夫」', to: '「○○すれば、きっと大丈夫！」' },
+      { from: '「とにかくやってみよう！」', to: '「まず準備してから、やってみよう！」' },
+      { from: '「なんとかなる」', to: '「工夫すれば、できるよ！」' }
+    ],
+    affirmations: [
+      { main: '私は焦らなくても\n魅力的', ex: '例）「今日も私らしくいこう」' },
+      { main: '根拠を添えると\nもっと伝わる', ex: '例）「なぜなら〜だから」' },
+      { main: '明るさは"準備"\nとセットで輝く', ex: '例）「まず確認してから動こう」' }
+    ],
+    scenes: [
+      { tag: '相談', main: 'こうすればうまくいくと思うんだけど、どうかな？', ex: '例）「一緒に考えてもらえると嬉しいな」' },
+      { tag: 'お願い', main: '○○を用意してから、お願いできる？', ex: '例）「準備できたら声かけてね」' }
+    ],
+    practices: [
+      '家族・友人に「私の口ぐせって何？」と聞いてみる',
+      '好きな音楽＋口ぐせでテンションを上げる',
+      '週に一度、ポジティブしりとりで遊ぶ'
+    ]
+  },
+  S: {
+    name: '思いやり派のあなた',
+    letter: 'S',
+    color: '#10b981',
+    colorLight: '#f0fdf4',
+    gradientFrom: '#10b981',
+    gradientTo: '#059669',
+    phrase: 'あなたの言葉はホットミルクみたいにじんわり温まります。その優しさは強さ。自分にも同じ温かさを向けよう。',
+    kuchiguseTop3: ['大丈夫？', 'いつもありがとう', '無理しないでね'],
+    tagColors: ['#10b981', '#3b82f6', '#f59e0b'],
+    prescriptions: [
+      { from: '「ごめんなさい」', to: '「ありがとう」' },
+      { from: '「私なんて...」', to: '「私にもできる」' },
+      { from: '「迷惑かけちゃうかも」', to: '「助けてもらえて、うれしい」' }
+    ],
+    affirmations: [
+      { main: '私はまわりに\n安心を届けられる', ex: '例）「あなたの存在が力になる」' },
+      { main: '「私は」を主語に\nそっと伝える', ex: '例）「私はこう感じています」' },
+      { main: '休むことも\n大事な一歩', ex: '例）「今日はゆっくりしよう」' }
+    ],
+    scenes: [
+      { tag: '相談', main: 'ありがとうございます。少しご相談させてください', ex: '例）「聞いてもらえると嬉しいです」' },
+      { tag: 'お願い', main: 'お願いできると心強いです', ex: '例）「一緒にやれると安心します」' }
+    ],
+    practices: [
+      '感情が揺れた瞬間に「大丈夫」とつぶやく',
+      '「ありがとう日記」を毎晩書く',
+      '自然の中で深呼吸しながら口ぐせを唱える'
+    ]
+  },
+  C: {
+    name: 'こだわり派のあなた',
+    letter: 'C',
+    color: '#3b82f6',
+    colorLight: '#eff6ff',
+    gradientFrom: '#3b82f6',
+    gradientTo: '#2563eb',
+    phrase: 'あなたの丁寧さは四つ葉のクローバーみたいな宝物です。正確さは強み。その安心感を育てる言葉に変えていこう。',
+    kuchiguseTop3: ['ちゃんと確認しよう', '段取りが大事', '美しく仕上げたい'],
+    tagColors: ['#3b82f6', '#10b981', '#f59e0b'],
+    prescriptions: [
+      { from: '「それは違います」', to: '「こういう見方もあります」' },
+      { from: '「ルールでは...」', to: '「ルールでは○○ですが、どうしましょうか？」' },
+      { from: '「間違ってます」', to: '「ここをこう直すと、正しくなります」' }
+    ],
+    affirmations: [
+      { main: '私は完璧でなくても\n価値がある', ex: '例）「今日も丁寧にできた」' },
+      { main: '正しさより関係性が\n大事な時もある', ex: '例）「まず相手の気持ちを聞こう」' },
+      { main: '事実と意見は\n分けて伝えられる', ex: '例）「私の考えでは〜です」' }
+    ],
+    scenes: [
+      { tag: '相談', main: 'こういう方法もあるのですが、どう思われますか？', ex: '例）「確認してから進めましょう」' },
+      { tag: 'お願い', main: 'この手順でやってもらえると助かります', ex: '例）「段取りを確認させてください」' }
+    ],
+    practices: [
+      '今日の口ぐせを寝る前にメモする',
+      'ネガティブ→ポジティブ置き換え辞書を作る',
+      'ZOOM録音やスマホで自分の話し方をチェックする'
+    ]
+  }
+};
+
+// ============================
+// STATE
+// ============================
+let currentQ = 0;
+let scores = { D: 0, I: 0, S: 0, C: 0 };
+let selectedChoice = null;
+
+// ============================
+// QUIZ LOGIC
+// ============================
+function startQuiz() {
+  currentQ = 0;
+  scores = { D: 0, I: 0, S: 0, C: 0 };
+  selectedChoice = null;
+  showScreen('quiz');
+  renderQuestion();
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// 選択肢ごとの明るい色（背景・ボーダー）
+const choiceColors = [
+  { bg: '#fff0e6', border: '#f97316', text: '#c2410c' },
+  { bg: '#fef9e7', border: '#f59e0b', text: '#92400e' },
+  { bg: '#e6faf5', border: '#10b981', text: '#065f46' },
+  { bg: '#e8f4fd', border: '#3b82f6', text: '#1e40af' },
+];
+
+function renderQuestion() {
+  const q = questions[currentQ];
+  const pct = ((currentQ + 1) / questions.length) * 100;
+
+  document.getElementById('progress-text').textContent = `${currentQ + 1} / ${questions.length}`;
+  document.getElementById('progress-bar').style.width = pct + '%';
+
+  // 選択肢をシャッフル
+  const shuffled = shuffle(q.choices);
+
+  const container = document.getElementById('question-container');
+  container.innerHTML = `
+    <div class="question-num slide-in">質問 ${currentQ + 1}</div>
+    <div class="question-text slide-in">${q.text}</div>
+    <div class="choices" id="choices">
+      ${shuffled.map((c, i) => {
+        const col = choiceColors[i];
+        return `
+        <button class="choice-btn" onclick="selectChoice(this, '${c.type}')"
+          style="border-color:${col.border}20; background:${col.bg};"
+          data-bg="${col.bg}" data-border="${col.border}">
+          <div class="choice-content">
+            <div class="choice-text">${c.text}</div>
+          </div>
+        </button>`;
+      }).join('')}
+    </div>
+  `;
+
+  selectedChoice = null;
+}
+
+function selectChoice(btn, type) {
+  // Remove previous selection
+  document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedChoice = type;
+  scores[type]++;
+
+  // Auto advance after short delay
+  setTimeout(() => {
+    currentQ++;
+    if (currentQ < questions.length) {
+      renderQuestion();
+    } else {
+      showScreen('name');
+      document.getElementById('user-name').focus();
+    }
+  }, 350);
+}
+
+// ============================
+// RESULT
+// ============================
+function showResult() {
+  const name = document.getElementById('user-name').value.trim() || '山田 花子';
+  const dominantType = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
+  const td = typeData[dominantType];
+  const today = new Date();
+  const dateStr = `${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日`;
+
+  const photoSrc = 'images/profile.jpg';
+  const qrSrc = 'images/qr.webp';
+
+  const html = buildReportHTML(td, name, dateStr, photoSrc, qrSrc);
+  document.getElementById('pdf-preview').innerHTML = html;
+  showScreen('result');
+
+  // Animate bars
+  setTimeout(() => {
+    const total = questions.length;
+    const barData = [
+      { type: 'D', color: '#ef4444' },
+      { type: 'I', color: '#f59e0b' },
+      { type: 'S', color: '#10b981' },
+      { type: 'C', color: '#3b82f6' }
+    ];
+    barData.forEach(b => {
+      const el = document.getElementById(`bar-${b.type}`);
+      if (el) {
+        const pct = (scores[b.type] / total) * 100;
+        el.style.width = pct + '%';
+        el.style.background = b.color;
+      }
+    });
+  }, 100);
+}
+
+function buildReportHTML(td, name, dateStr, photoSrc, qrSrc) {
+  const barData = [
+    { type: 'D', label: 'D タイプ', color: '#ef4444' },
+    { type: 'I', label: 'i タイプ', color: '#f59e0b' },
+    { type: 'S', label: 'S タイプ', color: '#10b981' },
+    { type: 'C', label: 'C タイプ', color: '#3b82f6' }
+  ];
+
+  const tagColorPairs = [
+    { bg: '#fee2e2', color: '#dc2626' },
+    { bg: '#fef9c3', color: '#b45309' },
+    { bg: '#d1fae5', color: '#065f46' }
+  ];
+
+  const practiceColors = [
+    { bg: '#fff0e6', border: '#f97316', num: '#f97316' },
+    { bg: '#e8f4fd', border: '#3b82f6', num: '#3b82f6' },
+    { bg: '#e6faf5', border: '#10b981', num: '#10b981' },
+  ];
+
+  // DiSC表記（iだけ小文字）
+  const discLabel = (t) => t === 'I' ? 'i' : t;
+
+  return `
+  <div class="report-page fade-in">
+
+    <!-- HEADER -->
+    <div class="rpt-header" style="background: linear-gradient(135deg, ${td.gradientFrom}, ${td.gradientTo})">
+      <div class="rpt-header-left">
+        <div class="rpt-title-main">口ぐせ診断 パーソナルレポート</div>
+        <div class="rpt-title-sub">DiSC別口ぐせ診断 ─ あなたの言葉が人生を変える</div>
+      </div>
+      <div class="rpt-header-right">
+        <div class="rpt-date">診断日：${dateStr}</div>
+        <div class="rpt-name">${name}　様</div>
+      </div>
+    </div>
+
+    <!-- BODY: 2カラムレイアウトで1ページ収め -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:10px 14px;">
+
+      <!-- 左カラム -->
+      <div style="display:flex; flex-direction:column; gap:8px;">
+
+        <!-- タイプ -->
+        <div style="border:2px solid ${td.color}30; border-radius:10px; padding:10px 14px; background:${td.colorLight}">
+          <div style="font-size:10px; font-weight:700; color:#9ca3af; letter-spacing:0.1em; margin-bottom:4px">あなたのタイプ</div>
+          <div style="font-size:22px; font-weight:900; color:${td.color}; font-family:'Zen Maru Gothic',sans-serif; line-height:1.2">${td.name}　(${discLabel(td.letter)})</div>
+          <div style="font-size:12px; color:#4b5563; margin-top:6px; line-height:1.6">${td.phrase}</div>
+        </div>
+
+        <!-- スコア -->
+        <div style="border-radius:10px; overflow:hidden; border:1px solid #e5e7eb">
+          <div style="background:#6b8fa3; color:white; font-size:11px; font-weight:700; padding:6px 12px; letter-spacing:0.05em">回答傾向（DiSC選択数）</div>
+          <div style="background:white; padding:10px 12px;">
+            ${barData.map(b => `
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                <div style="font-size:12px; font-weight:700; width:52px; color:#374151">${b.label}</div>
+                <div style="flex:1; height:14px; background:#f3f4f6; border-radius:100px; overflow:hidden;">
+                  <div id="bar-${b.type}" style="width:0%; height:100%; border-radius:100px; background:${b.color}; transition:width 1s;"></div>
+                </div>
+                <div style="font-size:12px; font-weight:700; width:24px; text-align:right; color:#374151">${scores[b.type]}問</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- TOP3口ぐせ -->
+        <div style="border-radius:10px; overflow:hidden; border:1px solid #e5e7eb">
+          <div style="background:#6b8fa3; color:white; font-size:11px; font-weight:700; padding:6px 12px;">あなたがよく使う口ぐせ（TOP3）</div>
+          <div style="background:white; padding:10px 12px; display:flex; gap:6px; flex-wrap:wrap;">
+            ${td.kuchiguseTop3.map((k, i) => `
+              <span style="background:${tagColorPairs[i].bg}; color:${tagColorPairs[i].color}; padding:5px 12px; border-radius:100px; font-size:13px; font-weight:700; font-family:'Zen Maru Gothic',sans-serif">${k}</span>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- 処方箋 -->
+        <div style="border-radius:10px; overflow:hidden; border:1px solid #e5e7eb; flex:1">
+          <div style="background:${td.color}; color:white; font-size:11px; font-weight:700; padding:6px 12px;">口ぐせ処方箋（${discLabel(td.letter)}：${td.name.replace('のあなた', '')}）</div>
+          <div style="background:white; padding:10px 12px;">
+            ${td.prescriptions.map(p => `
+              <div style="display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid #f3f4f6;">
+                <div style="font-size:12px; font-weight:600; color:#374151; flex:1; background:#f9fafb; padding:5px 8px; border-radius:6px">${p.from}</div>
+                <div style="color:${td.color}; font-size:14px; flex-shrink:0">→</div>
+                <div style="font-size:12px; font-weight:600; color:#1f2937; flex:1.2; background:#f0fdf4; padding:5px 8px; border-radius:6px; border-left:3px solid #10b981">${p.to}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 右カラム -->
+      <div style="display:flex; flex-direction:column; gap:8px;">
+
+        <!-- 自分を整える口ぐせ -->
+        <div style="border-radius:10px; overflow:hidden; border:1px solid #e5e7eb">
+          <div style="background:#6b8fa3; color:white; font-size:11px; font-weight:700; padding:6px 12px;">自分を整える口ぐせ</div>
+          <div style="background:white; padding:10px 12px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
+            ${td.affirmations.map(a => `
+              <div style="background:${td.colorLight}; border-radius:8px; padding:10px; text-align:center;">
+                <div style="font-size:12px; font-weight:700; color:#1f2937; line-height:1.5; margin-bottom:4px">${a.main.replace(/\n/g, '<br>')}</div>
+                <div style="font-size:10px; color:#6b7280; line-height:1.5">${a.ex}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- 場面別 -->
+        <div style="border-radius:10px; overflow:hidden; border:1px solid #e5e7eb">
+          <div style="background:#6b8fa3; color:white; font-size:11px; font-weight:700; padding:6px 12px;">場面別スクリプト</div>
+          <div style="background:white; padding:10px 12px;">
+            ${td.scenes.map(s => `
+              <div style="margin-bottom:8px;">
+                <span style="background:#dbeafe; color:#1d4ed8; font-size:10px; font-weight:700; padding:2px 8px; border-radius:100px;">【${s.tag}】</span>
+                <div style="font-size:12px; font-weight:600; color:#1f2937; margin-top:4px; line-height:1.5">${s.main}</div>
+                <div style="font-size:10px; color:#6b7280">${s.ex}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- 実践メニュー（色付き） -->
+        <div style="border-radius:10px; overflow:hidden; border:1px solid #e5e7eb">
+          <div style="background:#6b8fa3; color:white; font-size:11px; font-weight:700; padding:6px 12px;">今日からの実践メニュー</div>
+          <div style="background:white; padding:10px 12px; display:flex; flex-direction:column; gap:6px;">
+            ${td.practices.map((p, i) => `
+              <div style="background:${practiceColors[i].bg}; border-left:4px solid ${practiceColors[i].border}; border-radius:0 8px 8px 0; padding:8px 10px; font-size:12px; font-weight:600; color:#1f2937; line-height:1.5">
+                ${p}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- DiSCとは -->
+        <div style="border-radius:10px; overflow:hidden; border:1px solid #e5e7eb; flex:1">
+          <div style="background:#6b8fa3; color:white; font-size:11px; font-weight:700; padding:6px 12px;">DiSC（ディスク）とは？</div>
+          <div style="background:white; padding:8px 12px;">
+            <p style="font-size:11px; color:#4b5563; margin-bottom:8px; line-height:1.6">人の行動パターンを4タイプに分類する心理モデルです。</p>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+              <div style="background:#fef2f2; border:1px solid #fca5a5; border-radius:6px; padding:8px;">
+                <div style="font-size:12px; font-weight:700; color:#dc2626; margin-bottom:3px">D（主導型）</div>
+                <div style="font-size:10px; color:#6b7280; line-height:1.5">行動力・決断力・リーダー気質<br>「早くやろう！」</div>
+              </div>
+              <div style="background:#fffbeb; border:1px solid #fcd34d; border-radius:6px; padding:8px;">
+                <div style="font-size:12px; font-weight:700; color:#d97706; margin-bottom:3px">i（感化型）</div>
+                <div style="font-size:10px; color:#6b7280; line-height:1.5">社交的・楽観的・表現力豊か<br>「楽しみだね！」</div>
+              </div>
+              <div style="background:#f0fdf4; border:1px solid #86efac; border-radius:6px; padding:8px;">
+                <div style="font-size:12px; font-weight:700; color:#16a34a; margin-bottom:3px">S（安定型）</div>
+                <div style="font-size:10px; color:#6b7280; line-height:1.5">協調性・思いやり・穏やか<br>「大丈夫？」</div>
+              </div>
+              <div style="background:#eff6ff; border:1px solid #93c5fd; border-radius:6px; padding:8px;">
+                <div style="font-size:12px; font-weight:700; color:#2563eb; margin-bottom:3px">C（慎重型）</div>
+                <div style="font-size:10px; color:#6b7280; line-height:1.5">分析力・正確さ・こだわり強め<br>「ちゃんと確認しよう」</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FOOTER: プロフィール -->
+    <div style="margin:0 14px 14px; border:1px solid #e5e7eb; border-radius:10px; overflow:hidden; display:grid; grid-template-columns:auto 1fr auto; align-items:center;">
+      <div style="padding:12px 14px; background:#f9fafb; border-right:1px solid #e5e7eb;">
+        <img src="${photoSrc}" alt="講師写真"
+          style="width:100px; height:100px; border-radius:50%; object-fit:cover; object-position:top center; display:block; border:3px solid white; box-shadow:0 2px 8px rgba(0,0,0,0.12);"
+          onerror="this.style.display='none'">
+      </div>
+      <div style="padding:12px 16px;">
+        <div style="font-size:11px; font-weight:700; color:#f97316; letter-spacing:0.08em; margin-bottom:4px">🌸 講師プロフィール</div>
+        <div style="font-size:15px; font-weight:800; color:#e8734a; margin-bottom:3px">口ぐせセラピスト・口ぐせ改善コンサルタント</div>
+        <div style="font-size:12px; font-weight:600; color:#374151; margin-bottom:8px">長野県佐久市在住</div>
+        <div style="font-size:11px; font-weight:700; color:#f97316; margin-bottom:3px">📅 セミナー・セッションのご案内</div>
+        <div style="font-size:13px; font-weight:600; color:#1f2937; margin-bottom:2px">オンラインセミナー：毎週水曜日 10:00〜 / 土曜日 10:00〜</div>
+        <div style="font-size:12px; color:#6b7280">口ぐせセッション（個別）も是非ご検討ください</div>
+      </div>
+      <div style="padding:12px 14px; text-align:center; border-left:1px solid #e5e7eb; background:#f9fafb;">
+        <img src="${qrSrc}" alt="QRコード"
+          style="width:110px; height:110px; display:block; margin:0 auto;"
+          onerror="this.style.display='none'">
+        <div style="font-size:10px; color:#6b7280; margin-top:4px">お申込みはこちら</div>
+        <div style="display:inline-flex; align-items:center; background:${td.color}; color:white; border-radius:100px; padding:4px 14px; font-size:11px; font-weight:700; font-family:'Zen Maru Gothic',sans-serif; margin-top:5px;">お申込み</div>
+      </div>
+    </div>
+
+  </div>
+  `;
+}
+
+function printReport() {
+  window.print();
+}
+
+function restartQuiz() {
+  startQuiz();
+}
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#f97316">
 <title>DISC別口ぐせ診断</title>
