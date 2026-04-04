@@ -1846,41 +1846,51 @@ function saveAsImage() {
     logging: false,
     removeContainer: true,
     onclone: function(clonedDoc) {
-      // クローン内の全要素の背景色を強制的に上書き
-      var clonedBody = clonedDoc.body;
-      clonedBody.style.cssText = 'background:#ffffff !important; margin:0; padding:0;';
+      // html・body を白に
+      clonedDoc.documentElement.style.cssText = 'background:#ffffff !important;';
+      clonedDoc.body.style.cssText = 'background:#ffffff !important; margin:0; padding:0;';
 
-      // html・body・全親要素の背景を白に
-      clonedDoc.documentElement.style.background = '#ffffff';
-
-      // pdf-preview自体
+      // pdf-preview・screen-result を白に
       var clonedTarget = clonedDoc.getElementById('pdf-preview');
       if (clonedTarget) {
-        clonedTarget.style.background = '#ffffff';
-        clonedTarget.style.margin = '0';
-        clonedTarget.style.padding = '0';
+        clonedTarget.style.cssText = 'background:#ffffff !important; margin:0; padding:0;';
       }
-
-      // screen-result
       var clonedScreen = clonedDoc.getElementById('screen-result');
-      if (clonedScreen) {
-        clonedScreen.style.background = '#ffffff';
-      }
+      if (clonedScreen) clonedScreen.style.background = '#ffffff';
 
       // SNSボタン非表示
       var clonedSns = clonedDoc.querySelector('.sns-share-block');
       if (clonedSns) clonedSns.style.display = 'none';
 
-      // すべてのopacityを1に
-      var allEls = clonedDoc.querySelectorAll('*');
-      for (var i = 0; i < allEls.length; i++) {
-        var el = allEls[i];
-        var computed = window.getComputedStyle(el);
-        if (parseFloat(computed.opacity) < 1) {
-          el.style.opacity = '1';
+      // 全要素にcomputedStyleを焼き付け（背景色・文字色・グラデーション）
+      var allCloned = clonedDoc.querySelectorAll('*');
+      var allOrig = target.querySelectorAll('*');
+      for (var i = 0; i < allCloned.length; i++) {
+        var el = allCloned[i];
+        var orig = allOrig[i];
+        if (!orig) continue;
+        var computed = window.getComputedStyle(orig);
+
+        // opacity を1に
+        if (parseFloat(computed.opacity) < 1) el.style.opacity = '1';
+
+        // 背景色を焼き付け
+        var bg = computed.backgroundColor;
+        if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
+          el.style.backgroundColor = bg;
         }
+        // グラデーションを焼き付け
+        var bgImg = computed.backgroundImage;
+        if (bgImg && bgImg !== 'none') {
+          el.style.backgroundImage = bgImg;
+        }
+        // 文字色を焼き付け
+        el.style.color = computed.color;
+        // ボーダー色を焼き付け
+        el.style.borderColor = computed.borderColor;
       }
     }
+  })
   }).then(function(canvas) {
     if (sns) sns.style.display = '';
 
