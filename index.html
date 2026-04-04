@@ -1573,12 +1573,13 @@ function buildReportHTML(td, name, dateStr, photoSrc, qrSrc) {
   // 追加質問があったかどうか、その内容を整理
   const hadTiebreak = tiebreakMode && tiebreakQ > 0;
   const tiebreakTotalQ = tiebreakQ;
-  const tiedTypeLabels = tiebreakTypes.join('・');
+  const discLabel = (t) => t === 'I' ? 'i' : t;
+  const tiedTypeLabels = tiebreakTypes.map(discLabel).join('・');
 
   // 追加質問バッジHTML
   let tiebreakBadge = '';
   if (hadTiebreak) {
-    const winLabel = td.letter;
+    const winLabel = discLabel(td.letter);
     tiebreakBadge = '<div style="margin-top:8px; background:white; border:1.5px solid #7c3aed; border-radius:8px; padding:8px 12px;">'
       + '<div style="font-size:10px; font-weight:700; color:#7c3aed; margin-bottom:4px">✨ 追加質問で決定（' + tiebreakTotalQ + '問）</div>'
       + '<div style="font-size:11px; color:#4b5563; line-height:1.6">'
@@ -1589,7 +1590,7 @@ function buildReportHTML(td, name, dateStr, photoSrc, qrSrc) {
 
   // 追加質問スコア行HTML
   const typeColors = { D:'#ef4444', I:'#f59e0b', S:'#10b981', C:'#3b82f6' };
-  const typeLabels = { D:'D タイプ', I:'I タイプ', S:'S タイプ', C:'C タイプ' };
+  const typeLabels = { D:'D タイプ', I:'i タイプ', S:'S タイプ', C:'C タイプ' };
   let tiebreakScoreRows = '';
   if (hadTiebreak) {
     // 勝者（最高スコア）を正しく特定
@@ -1608,7 +1609,7 @@ function buildReportHTML(td, name, dateStr, photoSrc, qrSrc) {
         + (isWinner ? '<div style="font-size:10px; font-weight:700; color:#7c3aed; white-space:nowrap">✓ 決定</div>' : '')
         + '</div>';
     });
-    tiebreakScoreRows = '<div style="margin-top:8px; padding-top:8px; border-top:1px dashed #e5e7eb;">'
+    tiebreakScoreRows = '<div style="border-left:1px dashed #e5e7eb; padding-left:12px;">'
       + '<div style="font-size:10px; font-weight:700; color:#7c3aed; margin-bottom:6px">✨ 追加質問（' + tiebreakTotalQ + '問）の結果</div>'
       + rows + '</div>';
   }
@@ -1632,7 +1633,7 @@ function buildReportHTML(td, name, dateStr, photoSrc, qrSrc) {
     <div class="rpt-header" style="background: linear-gradient(135deg, ${td.gradientFrom}, ${td.gradientTo}); padding:18px 28px; display:flex; align-items:flex-start; justify-content:space-between;">
       <div>
         <div style="font-size:24px; font-weight:900; color:white; font-family:'Zen Maru Gothic',sans-serif; letter-spacing:0.02em; line-height:1.2;">口ぐせ診断 パーソナルレポート</div>
-        <div style="font-size:12px; color:rgba(255,255,255,0.85); margin-top:5px; letter-spacing:0.05em;">DISC別口ぐせ診断 ─ あなたの言葉が人生を変える</div>
+        <div style="font-size:12px; color:rgba(255,255,255,0.85); margin-top:5px; letter-spacing:0.05em;">DiSC別口ぐせ診断 ─ あなたの言葉が人生を変える</div>
       </div>
       <div style="text-align:right;">
         <div style="font-size:12px; color:rgba(255,255,255,0.85); margin-bottom:6px;">診断日：${dateStr}</div>
@@ -1653,18 +1654,22 @@ function buildReportHTML(td, name, dateStr, photoSrc, qrSrc) {
 
       <!-- スコア -->
       <div style="border-radius:10px; overflow:hidden; border:1px solid #e5e7eb">
-        <div style="background:#6b8fa3; color:white; font-size:11px; font-weight:700; padding:7px 14px; letter-spacing:0.05em">回答傾向（DISC選択数）</div>
-        <div style="background:white; padding:12px 14px;">
-          ${barData.map(function(b) {
-            return '<div style="display:flex; align-items:center; gap:10px; margin-bottom:7px;">'
-              + '<div style="font-size:12px; font-weight:700; width:58px; color:#374151">' + b.label + '</div>'
-              + '<div style="flex:1; height:14px; background:#f3f4f6; border-radius:100px; overflow:hidden;">'
-              + '<div id="bar-' + b.type + '" style="width:0%; height:100%; border-radius:100px; background:' + b.color + '; transition:width 1s;"></div>'
-              + '</div>'
-              + '<div style="font-size:12px; font-weight:700; width:28px; text-align:right; color:#374151">' + scores[b.type] + '問</div>'
-              + '</div>';
-          }).join('')}
-          ${tiebreakScoreRows}
+        <div style="background:#6b8fa3; color:white; font-size:11px; font-weight:700; padding:7px 14px; letter-spacing:0.05em">回答傾向（DiSC選択数）</div>
+        <div style="background:white; padding:12px 14px; display:${hadTiebreak ? 'grid' : 'block'}; grid-template-columns:${hadTiebreak ? '1fr 1fr' : ''}; gap:${hadTiebreak ? '12px' : '0'};">
+          <!-- 10問スコア（左） -->
+          <div>
+            ${barData.map(function(b) {
+              return '<div style="display:flex; align-items:center; gap:8px; margin-bottom:7px;">'
+                + '<div style="font-size:12px; font-weight:700; width:52px; color:#374151">' + b.label + '</div>'
+                + '<div style="flex:1; height:14px; background:#f3f4f6; border-radius:100px; overflow:hidden;">'
+                + '<div id="bar-' + b.type + '" style="width:0%; height:100%; border-radius:100px; background:' + b.color + '; transition:width 1s;"></div>'
+                + '</div>'
+                + '<div style="font-size:12px; font-weight:700; width:28px; text-align:right; color:#374151">' + scores[b.type] + '問</div>'
+                + '</div>';
+            }).join('')}
+          </div>
+          <!-- 追加質問スコア（右・同点時のみ） -->
+          ${hadTiebreak ? tiebreakScoreRows : ''}
         </div>
       </div>
 
@@ -1736,11 +1741,11 @@ function buildReportHTML(td, name, dateStr, photoSrc, qrSrc) {
 
       </div>
 
-      <!-- DISCとは？ -->
+      <!-- DiSCとは？ -->
       <div style="border-radius:10px; overflow:hidden; border:1px solid #e5e7eb">
-        <div style="background:#6b8fa3; color:white; font-size:11px; font-weight:700; padding:7px 14px;">DISCとは？</div>
+        <div style="background:#6b8fa3; color:white; font-size:11px; font-weight:700; padding:7px 14px;">DiSCとは？</div>
         <div style="background:white; padding:12px 14px;">
-          <p style="font-size:12px; color:#4b5563; margin-bottom:10px; line-height:1.7">DISC理論は、人の行動パターンを4つのタイプに分類する心理モデルです。あなたの口ぐせには、<br>このタイプ特有の思考パターンが表れています。</p>
+          <p style="font-size:12px; color:#4b5563; margin-bottom:10px; line-height:1.7">DiSC理論は、人の行動パターンを4つのタイプに分類する心理モデルです。あなたの口ぐせには、<br>このタイプ特有の思考パターンが表れています。</p>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
             <div style="background:#fef2f2; border:1px solid #fca5a5; border-radius:8px; padding:10px 12px;">
               <div style="font-size:13px; font-weight:700; color:#dc2626; margin-bottom:5px">D（主導型）</div>
