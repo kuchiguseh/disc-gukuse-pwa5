@@ -1565,7 +1565,7 @@ function showResult() {
 function buildReportHTML(td, name, dateStr, photoSrc, qrSrc) {
   const barData = [
     { type: 'D', label: 'D タイプ', color: '#ef4444' },
-    { type: 'I', label: 'i タイプ', color: '#f59e0b' },
+    { type: 'I', label: 'I タイプ', color: '#f59e0b' },
     { type: 'S', label: 'S タイプ', color: '#10b981' },
     { type: 'C', label: 'C タイプ', color: '#3b82f6' }
   ];
@@ -1573,12 +1573,12 @@ function buildReportHTML(td, name, dateStr, photoSrc, qrSrc) {
   // 追加質問があったかどうか、その内容を整理
   const hadTiebreak = tiebreakMode && tiebreakQ > 0;
   const tiebreakTotalQ = tiebreakQ;
-  const tiedTypeLabels = tiebreakTypes.map(function(t){ return t === 'I' ? 'i' : t; }).join('・');
+  const tiedTypeLabels = tiebreakTypes.join('・');
 
   // 追加質問バッジHTML
   let tiebreakBadge = '';
   if (hadTiebreak) {
-    const winLabel = td.letter === 'I' ? 'i' : td.letter;
+    const winLabel = td.letter;
     tiebreakBadge = '<div style="margin-top:8px; background:white; border:1.5px solid #7c3aed; border-radius:8px; padding:8px 12px;">'
       + '<div style="font-size:10px; font-weight:700; color:#7c3aed; margin-bottom:4px">✨ 追加質問で決定（' + tiebreakTotalQ + '問）</div>'
       + '<div style="font-size:11px; color:#4b5563; line-height:1.6">'
@@ -1589,7 +1589,7 @@ function buildReportHTML(td, name, dateStr, photoSrc, qrSrc) {
 
   // 追加質問スコア行HTML
   const typeColors = { D:'#ef4444', I:'#f59e0b', S:'#10b981', C:'#3b82f6' };
-  const typeLabels = { D:'D タイプ', I:'i タイプ', S:'S タイプ', C:'C タイプ' };
+  const typeLabels = { D:'D タイプ', I:'I タイプ', S:'S タイプ', C:'C タイプ' };
   let tiebreakScoreRows = '';
   if (hadTiebreak) {
     // 勝者（最高スコア）を正しく特定
@@ -1625,17 +1625,14 @@ function buildReportHTML(td, name, dateStr, photoSrc, qrSrc) {
     { bg: '#e6faf5', border: '#10b981', num: '#10b981' },
   ];
 
-  // DiSC表記（iだけ小文字）
-  const discLabel = (t) => t === 'I' ? 'i' : t;
-
   return `
   <div class="report-page fade-in">
 
     <!-- HEADER -->
-    <div class="rpt-header" style="background: linear-gradient(135deg, ${td.gradientFrom}, ${td.gradientTo}); padding:18px 28px; display:flex; align-items:center; justify-content:space-between;">
+    <div class="rpt-header" style="background: linear-gradient(135deg, ${td.gradientFrom}, ${td.gradientTo}); padding:18px 28px; display:flex; align-items:flex-start; justify-content:space-between;">
       <div>
         <div style="font-size:24px; font-weight:900; color:white; font-family:'Zen Maru Gothic',sans-serif; letter-spacing:0.02em; line-height:1.2;">口ぐせ診断 パーソナルレポート</div>
-        <div style="font-size:12px; color:rgba(255,255,255,0.85); margin-top:5px; letter-spacing:0.05em;">DiSC別口ぐせ診断 ─ あなたの言葉が人生を変える</div>
+        <div style="font-size:12px; color:rgba(255,255,255,0.85); margin-top:5px; letter-spacing:0.05em;">DISC別口ぐせ診断 ─ あなたの言葉が人生を変える</div>
       </div>
       <div style="text-align:right;">
         <div style="font-size:12px; color:rgba(255,255,255,0.85); margin-bottom:6px;">診断日：${dateStr}</div>
@@ -1643,132 +1640,128 @@ function buildReportHTML(td, name, dateStr, photoSrc, qrSrc) {
       </div>
     </div>
 
-    <!-- BODY: 2カラムレイアウトで1ページ収め -->
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:8px 12px;">
+    <!-- BODY: 1カラム縦積み（PDF準拠） -->
+    <div style="padding:10px 14px; display:flex; flex-direction:column; gap:8px;">
 
-      <!-- 左カラム -->
-      <div style="display:flex; flex-direction:column; gap:6px;">
+      <!-- タイプ -->
+      <div style="border:2px solid ${td.color}30; border-radius:10px; padding:12px 16px; background:${td.colorLight}">
+        <div style="font-size:10px; font-weight:700; color:#9ca3af; letter-spacing:0.1em; margin-bottom:2px">あなたのタイプ</div>
+        <div style="font-size:24px; font-weight:900; color:${td.color}; font-family:'Zen Maru Gothic',sans-serif; line-height:1.2">${td.name}　(${td.letter})</div>
+        <div style="font-size:12px; color:#4b5563; margin-top:6px; line-height:1.6">${td.phrase}</div>
+        ${tiebreakBadge}
+      </div>
 
-        <!-- タイプ -->
-        <div style="border:2px solid ${td.color}30; border-radius:10px; padding:10px 14px; background:${td.colorLight}">
-          <div style="font-size:10px; font-weight:700; color:#9ca3af; letter-spacing:0.1em; margin-bottom:4px">あなたのタイプ</div>
-          <div style="font-size:22px; font-weight:900; color:${td.color}; font-family:'Zen Maru Gothic',sans-serif; line-height:1.2">${td.name}　(${discLabel(td.letter)})</div>
-          <div style="font-size:12px; color:#4b5563; margin-top:6px; line-height:1.6">${td.phrase}</div>
-          ${tiebreakBadge}
+      <!-- スコア -->
+      <div style="border-radius:10px; overflow:hidden; border:1px solid #e5e7eb">
+        <div style="background:#6b8fa3; color:white; font-size:11px; font-weight:700; padding:7px 14px; letter-spacing:0.05em">回答傾向（DISC選択数）</div>
+        <div style="background:white; padding:12px 14px;">
+          ${barData.map(function(b) {
+            return '<div style="display:flex; align-items:center; gap:10px; margin-bottom:7px;">'
+              + '<div style="font-size:12px; font-weight:700; width:58px; color:#374151">' + b.label + '</div>'
+              + '<div style="flex:1; height:14px; background:#f3f4f6; border-radius:100px; overflow:hidden;">'
+              + '<div id="bar-' + b.type + '" style="width:0%; height:100%; border-radius:100px; background:' + b.color + '; transition:width 1s;"></div>'
+              + '</div>'
+              + '<div style="font-size:12px; font-weight:700; width:28px; text-align:right; color:#374151">' + scores[b.type] + '問</div>'
+              + '</div>';
+          }).join('')}
+          ${tiebreakScoreRows}
         </div>
+      </div>
 
-        <!-- スコア -->
+      <!-- TOP3口ぐせ -->
+      <div style="border-radius:10px; overflow:hidden; border:1px solid #e5e7eb">
+        <div style="background:#6b8fa3; color:white; font-size:11px; font-weight:700; padding:7px 14px;">あなたがよく使う口ぐせ（TOP3）</div>
+        <div style="background:white; padding:12px 14px; display:flex; gap:8px; flex-wrap:wrap;">
+          ${td.kuchiguseTop3.map(function(k, i) {
+            return '<span style="background:' + tagColorPairs[i].bg + '; color:' + tagColorPairs[i].color + '; padding:6px 16px; border-radius:100px; font-size:13px; font-weight:700; font-family:\'Zen Maru Gothic\',sans-serif">' + k + '</span>';
+          }).join('')}
+        </div>
+      </div>
+
+      <!-- 処方箋 -->
+      <div style="border-radius:10px; overflow:hidden; border:1px solid #e5e7eb">
+        <div style="background:${td.color}; color:white; font-size:11px; font-weight:700; padding:7px 14px;">口ぐせ処方箋（${td.letter}：${td.name.replace('のあなた', '')}）</div>
+        <div style="background:white; padding:12px 14px;">
+          ${td.prescriptions.map(function(p) {
+            return '<div style="display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid #f3f4f6;">'
+              + '<div style="font-size:12px; font-weight:600; color:#374151; flex:1; background:#f9fafb; padding:6px 10px; border-radius:6px">' + p.from + '</div>'
+              + '<div style="color:' + td.color + '; font-size:15px; flex-shrink:0; font-weight:700">-&gt;</div>'
+              + '<div style="font-size:12px; font-weight:600; color:#1f2937; flex:1.4; background:#f0fdf4; padding:6px 10px; border-radius:6px">' + p.to + '</div>'
+              + '</div>';
+          }).join('')}
+        </div>
+      </div>
+
+      <!-- 自分を整える口ぐせ -->
+      <div style="border-radius:10px; overflow:hidden; border:1px solid #e5e7eb">
+        <div style="background:#6b8fa3; color:white; font-size:11px; font-weight:700; padding:7px 14px;">自分を整える口ぐせ</div>
+        <div style="background:white; padding:10px 12px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+          ${td.affirmations.map(function(a, i) {
+            var aBgs = ['#fff0e6','#fef9e7','#e6faf5'];
+            var aBorders = ['#f97316','#f59e0b','#10b981'];
+            return '<div style="background:' + aBgs[i] + '; border:1.5px solid ' + aBorders[i] + '40; border-top:3px solid ' + aBorders[i] + '; border-radius:8px; padding:10px 8px; text-align:center;">'
+              + '<div style="font-size:12px; font-weight:700; color:#1f2937; line-height:1.6; margin-bottom:5px">' + a.main.replace(/\n/g, '<br>') + '</div>'
+              + '<div style="font-size:10px; color:#6b7280; line-height:1.4">' + a.ex + '</div>'
+              + '</div>';
+          }).join('')}
+        </div>
+      </div>
+
+      <!-- 場面別スクリプト ＋ 今日からの実践メニュー（横並び） -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+
+        <!-- 場面別スクリプト -->
         <div style="border-radius:10px; overflow:hidden; border:1px solid #e5e7eb">
-          <div style="background:#6b8fa3; color:white; font-size:11px; font-weight:700; padding:6px 12px; letter-spacing:0.05em">回答傾向（DiSC選択数）</div>
-          <div style="background:white; padding:10px 12px;">
-            ${barData.map(function(b) {
-              return '<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">'
-                + '<div style="font-size:12px; font-weight:700; width:52px; color:#374151">' + b.label + '</div>'
-                + '<div style="flex:1; height:14px; background:#f3f4f6; border-radius:100px; overflow:hidden;">'
-                + '<div id="bar-' + b.type + '" style="width:0%; height:100%; border-radius:100px; background:' + b.color + '; transition:width 1s;"></div>'
-                + '</div>'
-                + '<div style="font-size:12px; font-weight:700; width:24px; text-align:right; color:#374151">' + scores[b.type] + '問</div>'
+          <div style="background:#6b8fa3; color:white; font-size:11px; font-weight:700; padding:7px 14px;">場面別スクリプト</div>
+          <div style="background:white; padding:12px 14px;">
+            ${td.scenes.map(function(s) {
+              return '<div style="margin-bottom:10px;">'
+                + '<span style="font-size:11px; font-weight:700; color:#374151">【' + s.tag + '】</span>'
+                + '<div style="font-size:12px; font-weight:600; color:#1f2937; margin-top:4px; line-height:1.6">' + s.main + '</div>'
+                + '<div style="font-size:10px; color:#6b7280; margin-top:2px">' + s.ex + '</div>'
                 + '</div>';
             }).join('')}
-            ${tiebreakScoreRows}
           </div>
         </div>
 
-        <!-- TOP3口ぐせ -->
+        <!-- 今日からの実践メニュー -->
         <div style="border-radius:10px; overflow:hidden; border:1px solid #e5e7eb">
-          <div style="background:#6b8fa3; color:white; font-size:11px; font-weight:700; padding:6px 12px;">あなたがよく使う口ぐせ（TOP3）</div>
-          <div style="background:white; padding:10px 12px; display:flex; gap:6px; flex-wrap:wrap;">
-            ${td.kuchiguseTop3.map(function(k, i) {
-              return '<span style="background:' + tagColorPairs[i].bg + '; color:' + tagColorPairs[i].color + '; padding:5px 12px; border-radius:100px; font-size:13px; font-weight:700; font-family:\'Zen Maru Gothic\',sans-serif">' + k + '</span>';
-            }).join('')}
-          </div>
-        </div>
-
-        <!-- 処方箋 -->
-        <div style="border-radius:10px; overflow:hidden; border:1px solid #e5e7eb; flex:1">
-          <div style="background:${td.color}; color:white; font-size:11px; font-weight:700; padding:6px 12px;">口ぐせ処方箋（${discLabel(td.letter)}：${td.name.replace('のあなた', '')}）</div>
-          <div style="background:white; padding:10px 12px;">
-            ${td.prescriptions.map(function(p) {
-              return '<div style="display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid #f3f4f6;">'
-                + '<div style="font-size:12px; font-weight:600; color:#374151; flex:1; background:#f9fafb; padding:5px 8px; border-radius:6px">' + p.from + '</div>'
-                + '<div style="color:' + td.color + '; font-size:14px; flex-shrink:0">→</div>'
-                + '<div style="font-size:12px; font-weight:600; color:#1f2937; flex:1.2; background:#f0fdf4; padding:5px 8px; border-radius:6px; border-left:3px solid #10b981">' + p.to + '</div>'
-                + '</div>';
+          <div style="background:#6b8fa3; color:white; font-size:11px; font-weight:700; padding:7px 14px;">今日からの実践メニュー</div>
+          <div style="background:white; padding:12px 14px; display:flex; flex-direction:column; gap:7px;">
+            ${td.practices.map(function(p) {
+              return '<div style="font-size:12px; font-weight:600; color:#1f2937; line-height:1.6; padding-left:12px; border-left:3px solid #6b8fa3">' + p + '</div>';
             }).join('')}
           </div>
         </div>
 
       </div>
 
-      <!-- 右カラム -->
-      <div style="display:flex; flex-direction:column; gap:6px;">
-
-        <!-- 自分を整える口ぐせ -->
-        <div style="border-radius:10px; overflow:hidden; border:1px solid #e5e7eb">
-          <div style="background:#6b8fa3; color:white; font-size:11px; font-weight:700; padding:6px 12px;">自分を整える口ぐせ</div>
-          <div style="background:white; padding:8px 10px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:5px;">
-            ${td.affirmations.map(function(a, i) {
-              var aBgs = ['#fff0e6','#fef9e7','#e6faf5'];
-              var aBorders = ['#f97316','#f59e0b','#10b981'];
-              return '<div style="background:' + aBgs[i] + '; border:1.5px solid ' + aBorders[i] + '40; border-top:3px solid ' + aBorders[i] + '; border-radius:8px; padding:8px; text-align:center;">'
-                + '<div style="font-size:12px; font-weight:700; color:#1f2937; line-height:1.5; margin-bottom:3px">' + a.main.replace(/\n/g, '<br>') + '</div>'
-                + '<div style="font-size:10px; color:#6b7280; line-height:1.4">' + a.ex + '</div>'
-                + '</div>';
-            }).join('')}
-          </div>
-        </div>
-
-        <!-- 場面別 -->
-        <div style="border-radius:10px; overflow:hidden; border:1px solid #e5e7eb">
-          <div style="background:#6b8fa3; color:white; font-size:11px; font-weight:700; padding:6px 12px;">場面別スクリプト</div>
-          <div style="background:white; padding:10px 12px;">
-            ${td.scenes.map(function(s) {
-              return '<div style="margin-bottom:8px;">'
-                + '<span style="background:#dbeafe; color:#1d4ed8; font-size:10px; font-weight:700; padding:2px 8px; border-radius:100px;">【' + s.tag + '】</span>'
-                + '<div style="font-size:12px; font-weight:600; color:#1f2937; margin-top:4px; line-height:1.5">' + s.main + '</div>'
-                + '<div style="font-size:10px; color:#6b7280">' + s.ex + '</div>'
-                + '</div>';
-            }).join('')}
-          </div>
-        </div>
-
-        <!-- 実践メニュー（色付き） -->
-        <div style="border-radius:10px; overflow:hidden; border:1px solid #e5e7eb">
-          <div style="background:#6b8fa3; color:white; font-size:11px; font-weight:700; padding:6px 12px;">今日からの実践メニュー</div>
-          <div style="background:white; padding:10px 12px; display:flex; flex-direction:column; gap:6px;">
-            ${td.practices.map(function(p, i) {
-              return '<div style="background:' + practiceColors[i].bg + '; border-left:4px solid ' + practiceColors[i].border + '; border-radius:0 8px 8px 0; padding:8px 10px; font-size:12px; font-weight:600; color:#1f2937; line-height:1.5">' + p + '</div>';
-            }).join('')}
-          </div>
-        </div>
-
-        <!-- DiSCとは -->
-        <div style="border-radius:10px; overflow:hidden; border:1px solid #e5e7eb; flex:1">
-          <div style="background:#6b8fa3; color:white; font-size:11px; font-weight:700; padding:6px 12px;">DiSC（ディスク）とは？</div>
-          <div style="background:white; padding:8px 12px;">
-            <p style="font-size:11px; color:#4b5563; margin-bottom:8px; line-height:1.6">人の行動パターンを4タイプに分類する心理モデルです。</p>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
-              <div style="background:#fef2f2; border:1px solid #fca5a5; border-radius:6px; padding:8px;">
-                <div style="font-size:12px; font-weight:700; color:#dc2626; margin-bottom:3px">D（主導型）</div>
-                <div style="font-size:10px; color:#6b7280; line-height:1.5">行動力・決断力・リーダー気質<br>「早くやろう！」</div>
-              </div>
-              <div style="background:#fffbeb; border:1px solid #fcd34d; border-radius:6px; padding:8px;">
-                <div style="font-size:12px; font-weight:700; color:#d97706; margin-bottom:3px">i（感化型）</div>
-                <div style="font-size:10px; color:#6b7280; line-height:1.5">社交的・楽観的・表現力豊か<br>「楽しみだね！」</div>
-              </div>
-              <div style="background:#f0fdf4; border:1px solid #86efac; border-radius:6px; padding:8px;">
-                <div style="font-size:12px; font-weight:700; color:#16a34a; margin-bottom:3px">S（安定型）</div>
-                <div style="font-size:10px; color:#6b7280; line-height:1.5">協調性・思いやり・穏やか<br>「大丈夫？」</div>
-              </div>
-              <div style="background:#eff6ff; border:1px solid #93c5fd; border-radius:6px; padding:8px;">
-                <div style="font-size:12px; font-weight:700; color:#2563eb; margin-bottom:3px">C（慎重型）</div>
-                <div style="font-size:10px; color:#6b7280; line-height:1.5">分析力・正確さ・こだわり強め<br>「ちゃんと確認しよう」</div>
-              </div>
+      <!-- DISCとは？ -->
+      <div style="border-radius:10px; overflow:hidden; border:1px solid #e5e7eb">
+        <div style="background:#6b8fa3; color:white; font-size:11px; font-weight:700; padding:7px 14px;">DISCとは？</div>
+        <div style="background:white; padding:12px 14px;">
+          <p style="font-size:12px; color:#4b5563; margin-bottom:10px; line-height:1.7">DISC理論は、人の行動パターンを4つのタイプに分類する心理モデルです。あなたの口ぐせには、<br>このタイプ特有の思考パターンが表れています。</p>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <div style="background:#fef2f2; border:1px solid #fca5a5; border-radius:8px; padding:10px 12px;">
+              <div style="font-size:13px; font-weight:700; color:#dc2626; margin-bottom:5px">D（主導型）</div>
+              <div style="font-size:11px; color:#4b5563; line-height:1.6">行動力・決断力・リーダー気質<br>・「早くやろう！」<br>・「こうすれば絶対うまくいく」</div>
+            </div>
+            <div style="background:#fffbeb; border:1px solid #fcd34d; border-radius:8px; padding:10px 12px;">
+              <div style="font-size:13px; font-weight:700; color:#d97706; margin-bottom:5px">I（感化型）</div>
+              <div style="font-size:11px; color:#4b5563; line-height:1.6">社交的・楽観的・表現力豊か<br>・「楽しみだね！」<br>・「なんとかなる！」</div>
+            </div>
+            <div style="background:#f0fdf4; border:1px solid #86efac; border-radius:8px; padding:10px 12px;">
+              <div style="font-size:13px; font-weight:700; color:#16a34a; margin-bottom:5px">S（安定型）</div>
+              <div style="font-size:11px; color:#4b5563; line-height:1.6">協調性・思いやり・穏やか<br>・「大丈夫？」<br>・「いつもありがとう」</div>
+            </div>
+            <div style="background:#eff6ff; border:1px solid #93c5fd; border-radius:8px; padding:10px 12px;">
+              <div style="font-size:13px; font-weight:700; color:#2563eb; margin-bottom:5px">C（慎重型）</div>
+              <div style="font-size:11px; color:#4b5563; line-height:1.6">分析力・正確さ・こだわり強め<br>・「ちゃんと確認しよう」<br>・「段取りが大事」</div>
             </div>
           </div>
         </div>
-
       </div>
+
     </div>
 
     <!-- FOOTER: プロフィール -->
@@ -1781,12 +1774,14 @@ function buildReportHTML(td, name, dateStr, photoSrc, qrSrc) {
         </div>
       </div>
       <div style="padding:12px 16px;">
-        <div style="font-size:11px; font-weight:700; color:#f97316; letter-spacing:0.08em; margin-bottom:4px">🌸 講師プロフィール</div>
-        <div style="font-size:15px; font-weight:800; color:#e8734a; margin-bottom:3px">口ぐせセラピスト・口ぐせ改善コンサルタント</div>
+        <div style="font-size:11px; font-weight:700; color:#f97316; letter-spacing:0.08em; margin-bottom:4px">講師プロフィール</div>
+        <div style="font-size:14px; font-weight:800; color:#e8734a; margin-bottom:3px">口ぐせセラピスト</div>
+        <div style="font-size:13px; font-weight:700; color:#e8734a; margin-bottom:6px">口ぐせ改善コンサルタント</div>
         <div style="font-size:12px; font-weight:600; color:#374151; margin-bottom:8px">長野県佐久市在住</div>
-        <div style="font-size:11px; font-weight:700; color:#f97316; margin-bottom:3px">📅 セミナー・セッションのご案内</div>
-        <div style="font-size:13px; font-weight:600; color:#1f2937; margin-bottom:2px">オンラインセミナー：毎週水曜日 10:00〜 / 土曜日 10:00〜</div>
-        <div style="font-size:12px; color:#6b7280">口ぐせセッション（個別）も是非ご検討ください</div>
+        <div style="font-size:11px; font-weight:700; color:#f97316; margin-bottom:3px">セミナー・セッションのご案内</div>
+        <div style="font-size:12px; font-weight:600; color:#1f2937; margin-bottom:2px">オンラインセミナー：毎週水曜日 10:00〜 / 土曜日 10:00〜</div>
+        <div style="font-size:11px; color:#6b7280">口ぐせセッション（個別）も是非ご検討ください</div>
+        <div style="font-size:11px; color:#6b7280; margin-top:2px">お申込みは右のQRコードからどうぞ</div>
       </div>
       <div style="padding:12px 14px; text-align:center; border-left:1px solid #e5e7eb; background:#f9fafb;">
         <img src="${qrSrc}" alt="QRコード"
