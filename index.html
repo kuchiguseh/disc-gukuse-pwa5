@@ -1276,7 +1276,10 @@ function selectChoice(btn, type) {
           tiebreakTypes = tied;
           tiebreakScores = {};
           tied.forEach(t => { tiebreakScores[t] = 0; });
-          showScreen('quiz');
+          // quiz画面をactiveにしてから追加質問を表示
+          document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+          document.getElementById('screen-quiz').classList.add('active');
+          window.scrollTo(0, 0);
           renderTiebreakQuestion(tied);
         } else {
           showScreen('name');
