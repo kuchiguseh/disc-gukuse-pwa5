@@ -1838,6 +1838,34 @@ function saveAsImage() {
   var sns = target.querySelector('.sns-share-block');
   if (sns) sns.style.display = 'none';
 
+  // キャプチャ前に全要素のcomputedStyleをinlineに焼き付ける
+  var allEls = target.querySelectorAll('*');
+  var savedStyles = [];
+  for (var i = 0; i < allEls.length; i++) {
+    var el = allEls[i];
+    var computed = window.getComputedStyle(el);
+    savedStyles.push(el.getAttribute('style') || '');
+
+    var bg = computed.backgroundColor;
+    var bgImg = computed.backgroundImage;
+    var color = computed.color;
+    var borderColor = computed.borderColor;
+
+    var extra = '';
+    if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
+      extra += 'background-color:' + bg + ' !important;';
+    }
+    if (bgImg && bgImg !== 'none') {
+      extra += 'background-image:' + bgImg + ' !important;';
+    }
+    if (color) extra += 'color:' + color + ' !important;';
+    if (borderColor) extra += 'border-color:' + borderColor + ' !important;';
+    extra += 'opacity:1 !important;';
+
+    var current = el.getAttribute('style') || '';
+    el.setAttribute('style', current + extra);
+  }
+
   html2canvas(target, {
     scale: 2,
     useCORS: true,
@@ -1846,62 +1874,30 @@ function saveAsImage() {
     logging: false,
     removeContainer: true,
     onclone: function(clonedDoc) {
-      // html・body を白に
       clonedDoc.documentElement.style.cssText = 'background:#ffffff !important;';
       clonedDoc.body.style.cssText = 'background:#ffffff !important; margin:0; padding:0;';
-
-      // pdf-preview・screen-result を白に
       var clonedTarget = clonedDoc.getElementById('pdf-preview');
-      if (clonedTarget) {
-        clonedTarget.style.cssText = 'background:#ffffff !important; margin:0; padding:0;';
-      }
-      var clonedScreen = clonedDoc.getElementById('screen-result');
-      if (clonedScreen) clonedScreen.style.background = '#ffffff';
-
-      // SNSボタン非表示
+      if (clonedTarget) clonedTarget.style.cssText = 'background:#ffffff !important; margin:0; padding:0;';
       var clonedSns = clonedDoc.querySelector('.sns-share-block');
       if (clonedSns) clonedSns.style.display = 'none';
-
-      // 全要素にcomputedStyleを焼き付け（背景色・文字色・グラデーション）
-      var allCloned = clonedDoc.querySelectorAll('*');
-      var allOrig = target.querySelectorAll('*');
-      for (var i = 0; i < allCloned.length; i++) {
-        var el = allCloned[i];
-        var orig = allOrig[i];
-        if (!orig) continue;
-        var computed = window.getComputedStyle(orig);
-
-        // opacity を1に
-        if (parseFloat(computed.opacity) < 1) el.style.opacity = '1';
-
-        // 背景色を焼き付け
-        var bg = computed.backgroundColor;
-        if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
-          el.style.backgroundColor = bg;
-        }
-        // グラデーションを焼き付け
-        var bgImg = computed.backgroundImage;
-        if (bgImg && bgImg !== 'none') {
-          el.style.backgroundImage = bgImg;
-        }
-        // 文字色を焼き付け
-        el.style.color = computed.color;
-        // ボーダー色を焼き付け
-        el.style.borderColor = computed.borderColor;
-      }
     }
   }).then(function(canvas) {
+    // 焼き付けたstyleを元に戻す
+    for (var i = 0; i < allEls.length; i++) {
+      if (savedStyles[i]) {
+        allEls[i].setAttribute('style', savedStyles[i]);
+      } else {
+        allEls[i].removeAttribute('style');
+      }
+    }
     if (sns) sns.style.display = '';
 
     var isSmartphone = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
     if (isSmartphone) {
-      // Web Share API（iOS/Android対応）でファイル共有
       canvas.toBlob(function(blob) {
         var file = new File([blob], 'kuchiguse-report.png', { type: 'image/png' });
-
         if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-          // Web Share APIでiOSの「写真に追加」が使える
           navigator.share({
             files: [file],
             title: '口ぐせ診断レポート'
@@ -1909,7 +1905,6 @@ function saveAsImage() {
             console.log('Share cancelled or failed:', err);
           });
         } else {
-          // フォールバック：モーダルで表示
           var url = URL.createObjectURL(blob);
           document.getElementById('modal-img').src = url;
           var dlBtn = document.getElementById('modal-download-btn');
@@ -1970,6 +1965,14 @@ function saveAsImage() {
     btn.disabled = false;
   }).catch(function(err) {
     console.error(err);
+    // エラー時もstyleを元に戻す
+    for (var i = 0; i < allEls.length; i++) {
+      if (savedStyles[i]) {
+        allEls[i].setAttribute('style', savedStyles[i]);
+      } else {
+        allEls[i].removeAttribute('style');
+      }
+    }
     if (sns) sns.style.display = '';
     btn.textContent = origText;
     btn.disabled = false;
