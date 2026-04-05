@@ -453,7 +453,7 @@
     background: white;
     border-radius: 16px;
     overflow: hidden;
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.12);
     font-size: 14px;
     line-height: 1.7;
   }
@@ -1853,6 +1853,15 @@ function saveAsImage() {
   var isSmartphone = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
   if (isSmartphone) {
+    // report-pageのbox-shadow等をキャプチャ前に無効化
+    var reportPage = target.querySelector('.report-page');
+    var savedReportStyle = reportPage ? reportPage.getAttribute('style') || '' : '';
+    if (reportPage) {
+      reportPage.style.boxShadow = 'none';
+      reportPage.style.borderRadius = '0';
+      reportPage.style.overflow = 'visible';
+    }
+
     // キャプチャ前に背景色・グラデーションのみinlineに焼き付ける（opacityは触らない）
     var allEls = target.querySelectorAll('*');
     var savedStyles = [];
@@ -1888,6 +1897,7 @@ function saveAsImage() {
       }
     }).then(function(canvas) {
       // styleを元に戻す
+      if (reportPage) reportPage.setAttribute('style', savedReportStyle);
       for (var j = 0; j < allEls.length; j++) {
         if (savedStyles[j]) { allEls[j].setAttribute('style', savedStyles[j]); }
         else { allEls[j].removeAttribute('style'); }
@@ -1909,6 +1919,7 @@ function saveAsImage() {
         btn.disabled = false;
       }, 'image/png');
     }).catch(function(err) {
+      if (reportPage) reportPage.setAttribute('style', savedReportStyle);
       for (var j = 0; j < allEls.length; j++) {
         if (savedStyles[j]) { allEls[j].setAttribute('style', savedStyles[j]); }
         else { allEls[j].removeAttribute('style'); }
