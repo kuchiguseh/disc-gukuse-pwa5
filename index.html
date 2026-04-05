@@ -1853,18 +1853,45 @@ function saveAsImage() {
   var isSmartphone = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
   if (isSmartphone) {
-    // スマホ：html2canvasを直接使う（別ウィンドウは開けないため）
-    // レポートの全inline styleが既に書かれているのでそのままキャプチャ
+    // キャプチャ前に背景色・グラデーションのみinlineに焼き付ける（opacityは触らない）
+    var allEls = target.querySelectorAll('*');
+    var savedStyles = [];
+    for (var i = 0; i < allEls.length; i++) {
+      var el = allEls[i];
+      savedStyles.push(el.getAttribute('style') || '');
+      var cs = window.getComputedStyle(el);
+      var patch = '';
+      var bgc = cs.backgroundColor;
+      var bgi = cs.backgroundImage;
+      // 透明でない背景色のみ焼き付け
+      if (bgc && bgc !== 'rgba(0, 0, 0, 0)' && bgc !== 'transparent') {
+        patch += 'background-color:' + bgc + '!important;';
+      }
+      // グラデーション（linear-gradient等）のみ焼き付け
+      if (bgi && bgi !== 'none' && bgi.indexOf('gradient') !== -1) {
+        patch += 'background-image:' + bgi + '!important;';
+      }
+      if (patch) {
+        el.setAttribute('style', (el.getAttribute('style') || '') + patch);
+      }
+    }
+
     html2canvas(target, {
       scale: 2,
       useCORS: true,
       allowTaint: true,
       backgroundColor: '#ffffff',
       logging: false,
+      windowWidth: document.documentElement.scrollWidth,
       ignoreElements: function(el) {
         return el.classList && el.classList.contains('sns-share-block');
       }
     }).then(function(canvas) {
+      // styleを元に戻す
+      for (var j = 0; j < allEls.length; j++) {
+        if (savedStyles[j]) { allEls[j].setAttribute('style', savedStyles[j]); }
+        else { allEls[j].removeAttribute('style'); }
+      }
       canvas.toBlob(function(blob) {
         var file = new File([blob], 'kuchiguse-report.png', { type: 'image/png' });
         if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -1882,6 +1909,10 @@ function saveAsImage() {
         btn.disabled = false;
       }, 'image/png');
     }).catch(function(err) {
+      for (var j = 0; j < allEls.length; j++) {
+        if (savedStyles[j]) { allEls[j].setAttribute('style', savedStyles[j]); }
+        else { allEls[j].removeAttribute('style'); }
+      }
       console.error(err);
       btn.textContent = origText;
       btn.disabled = false;
