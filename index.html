@@ -963,7 +963,7 @@ if ('caches' in window) {
   <div class="profile-card fade-in">
     <div class="name-icon">📋</div>
     <h2 class="profile-title">はじめに教えてください</h2>
-    <p class="profile-desc">診断結果の分析に使用します。<br>すべて選択式で30秒で完了します。</p>
+    <p class="profile-desc">より良いアドバイスのために<br>教えていただけると嬉しいです。</p>
 
     <div class="profile-field">
       <label class="profile-label">お名前（ニックネームでもOK）</label>
@@ -994,6 +994,7 @@ if ('caches' in window) {
         <option value="40代">40代</option>
         <option value="50代">50代</option>
         <option value="60代以上">60代以上</option>
+        <option value="回答しない">回答しない</option>
       </select>
     </div>
 
@@ -1023,6 +1024,20 @@ if ('caches' in window) {
         <option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option>
         <option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option>
         <option>宮崎県</option><option>鹿児島県</option><option>沖縄県</option><option>海外在住</option>
+      </select>
+    </div>
+
+    <div class="profile-field">
+      <label class="profile-label">今の一番の悩み</label>
+      <select class="profile-select" id="profile-worry">
+        <option value="">選択してください</option>
+        <option value="人間関係がうまくいかない">人間関係がうまくいかない</option>
+        <option value="自分に自信が持てない">自分に自信が持てない</option>
+        <option value="お金・収入の悩み">お金・収入の悩み</option>
+        <option value="感情をうまく伝えられない">感情をうまく伝えられない</option>
+        <option value="やる気が続かない">やる気が続かない</option>
+        <option value="職場・家族との関係">職場・家族との関係</option>
+        <option value="特になし・回答しない">特になし・回答しない</option>
       </select>
     </div>
 
@@ -1343,21 +1358,17 @@ let tiebreakMax = 3;      // 最大3問
 // QUIZ LOGIC
 // ============================
 function startFromProfile() {
-  var name = document.getElementById('profile-name').value.trim();
-  var job  = document.getElementById('profile-job').value;
-  var age  = document.getElementById('profile-age').value;
-  var gender = document.getElementById('profile-gender').value;
-  var pref = document.getElementById('profile-prefecture').value;
+  var name = document.getElementById('profile-name').value.trim() || '回答なし';
+  var job  = document.getElementById('profile-job').value || '回答なし';
+  var age  = document.getElementById('profile-age').value || '回答なし';
+  var gender = document.getElementById('profile-gender').value || '回答なし';
+  var pref = document.getElementById('profile-prefecture').value || '回答なし';
+  var worry = document.getElementById('profile-worry').value || '回答なし';
 
-  if (!name) { alert('お名前を入力してください'); return; }
-  if (!job)  { alert('職業を選択してください'); return; }
-  if (!age)  { alert('年齢層を選択してください'); return; }
-  if (!gender) { alert('性別を選択してください'); return; }
-  if (!pref) { alert('都道府県を選択してください'); return; }
-
-  userProfile = { name, job, age, gender, prefecture: pref };
+  userProfile = { name, job, age, gender, prefecture: pref, worry };
   // user-nameにも反映（既存のshowResult関数が使うため）
-  document.getElementById('user-name').value = name;
+  var displayName = document.getElementById('profile-name').value.trim();
+  document.getElementById('user-name').value = displayName;
 
   startQuiz();
 }
@@ -1375,6 +1386,7 @@ function sendResultToSheet(discType) {
     age: userProfile.age,
     gender: userProfile.gender,
     prefecture: userProfile.prefecture,
+    worry: userProfile.worry,
     discType: discType,
     scoreD: scores.D,
     scoreI: scores.I,
@@ -1779,6 +1791,48 @@ function showResult() {
   }, 100);
 }
 
+// ============================
+// 悩み別口ぐせ処方データ
+// ============================
+const worryAdvice = {
+  '人間関係がうまくいかない': {
+    D: { cause: '「こうすべき」「なんでできないの」→ 相手を追い詰めがち', advice: ['「あなたはどう思う？」', '「一緒に考えよう」'] },
+    I: { cause: '「大丈夫大丈夫！」→ 相手の深刻さを軽視してしまいがち', advice: ['「それは辛かったね。もう少し聞かせて」', '「一緒に感じよう」'] },
+    S: { cause: '「私が我慢すればいい」→ 不満が溜まり関係が悪化しがち', advice: ['「私はこう感じています」', '「少し話せますか？」'] },
+    C: { cause: '「それは間違っています」→ 正論で相手を傷つけてしまいがち', advice: ['「こういう見方もありますね」', '「なるほど、そういう考えもあるんですね」'] }
+  },
+  '自分に自信が持てない': {
+    D: { cause: '「もっとできるはずなのに」→ 自己批判が激しくなりがち', advice: ['「今日もやりきった」', '「これだけでも十分」'] },
+    I: { cause: '「どうせ私なんて…」→ 承認されないと落ち込みやすい', advice: ['「私はそのままで魅力的」', '「今日も私らしくいこう」'] },
+    S: { cause: '「迷惑かけたらどうしよう」→ 遠慮が自信を奪いがち', advice: ['「私にもできる」', '「頼ってもらえて嬉しい」'] },
+    C: { cause: '「完璧にできなかった」→ 小さなミスを引きずりがち', advice: ['「今日も丁寧にできた」', '「完璧でなくても価値がある」'] }
+  },
+  'お金・収入の悩み': {
+    D: { cause: '「結果が全て」→ 焦りから判断ミスが増えがち', advice: ['「着実に積み上げていこう」', '「今できることに集中」'] },
+    I: { cause: '「なんとかなる！」→ 楽観的すぎて計画が甘くなりがち', advice: ['「まず数字を確認してから動こう」', '「準備が豊かさを呼ぶ」'] },
+    S: { cause: '「お金のことを言うのは悪い気がする」→ 遠慮して収入が増えにくい', advice: ['「自分の価値を正当に伝えよう」', '「受け取ることも大切」'] },
+    C: { cause: '「リスクが怖くて動けない」→ 分析しすぎて行動できなくなりがち', advice: ['「小さく試してみよう」', '「データが揃ったら動く」'] }
+  },
+  '感情をうまく伝えられない': {
+    D: { cause: '「そんなことより結果を出せ」→ 感情より論理で押し切りがち', advice: ['「あなたの気持ちも大切にしたい」', '「どう感じた？」'] },
+    I: { cause: '「楽しければいい！」→ 深刻な感情を回避してしまいがち', advice: ['「今、私はこんな気持ちです」', '「少し真剣に話したい」'] },
+    S: { cause: '「言ったら嫌われるかも」→ 飲み込みすぎて伝わらない', advice: ['「私はこう感じています」', '「勇気を持って伝えよう」'] },
+    C: { cause: '「感情より事実が大事」→ 冷静すぎて気持ちが届きにくい', advice: ['「これは私の正直な気持ちです」', '「感じたことを伝えよう」'] }
+  },
+  'やる気が続かない': {
+    D: { cause: '「もっと速くできるはず」→ 高すぎる目標で燃え尽きがち', advice: ['「今日の一歩が明日につながる」', '「小さな勝利を積み重ねよう」'] },
+    I: { cause: '「飽きてきた…また新しいことやろう」→ 続かないパターンになりがち', advice: ['「楽しみながら続けよう」', '「仲間と一緒なら続けられる」'] },
+    S: { cause: '「誰かのためならできるけど…」→ 自分のためだと動けなくなりがち', advice: ['「私が元気でいることが周りの力になる」', '「自分を満たそう」'] },
+    C: { cause: '「完璧にできないならやらない」→ 完璧主義で動けなくなりがち', advice: ['「まず70点でいい」', '「続けることが完成度を上げる」'] }
+  },
+  '職場・家族との関係': {
+    D: { cause: '「なんで言った通りにしないの」→ 支配的になってしまいがち', advice: ['「どうしたらやりやすい？」', '「あなたのやり方も聞かせて」'] },
+    I: { cause: '「みんな仲良くすればいい！」→ 問題を先送りにしてしまいがち', advice: ['「しっかり話し合おう」', '「大事なことだから向き合おう」'] },
+    S: { cause: '「波風立てたくない」→ 我慢が積み重なり限界になりがち', advice: ['「少し話せますか？」', '「私も一緒に考えたい」'] },
+    C: { cause: '「なぜそんな非合理なことをするの」→ 論理で追い詰めてしまいがち', advice: ['「あなたはどう感じてる？」', '「まず気持ちを聞かせて」'] }
+  }
+};
+
 function buildReportHTML(td, name, dateStr, photoSrc, qrSrc) {
   const barData = [
     { type: 'D', label: 'D タイプ', color: '#ef4444' },
@@ -1842,6 +1896,31 @@ function buildReportHTML(td, name, dateStr, photoSrc, qrSrc) {
     { bg: '#e8f4fd', border: '#3b82f6', num: '#3b82f6' },
     { bg: '#e6faf5', border: '#10b981', num: '#10b981' },
   ];
+
+  // 悩み別処方セクションHTML生成
+  var worryHTML = '';
+  var worry = userProfile ? userProfile.worry : '';
+  if (worry && worry !== '回答なし' && worry !== '特になし・回答しない' && worryAdvice[worry]) {
+    var wa = worryAdvice[worry][td.letter];
+    if (wa) {
+      worryHTML = '<div style="border-radius:10px; overflow:hidden; border:1px solid #e5e7eb; margin-bottom:0;">'
+        + '<div style="background:' + td.color + '; color:white; font-size:11px; font-weight:700; padding:7px 14px;">🔍 あなたの悩みへの口ぐせ処方</div>'
+        + '<div style="background:white; padding:12px 14px;">'
+        + '<div style="font-size:12px; font-weight:700; color:' + td.color + '; margin-bottom:8px;">お悩み：' + worry + '</div>'
+        + '<div style="background:#f9fafb; border-radius:8px; padding:10px 12px; margin-bottom:10px;">'
+        + '<div style="font-size:10px; font-weight:700; color:#9ca3af; margin-bottom:4px;">あなたのタイプが陥りやすいパターン</div>'
+        + '<div style="font-size:12px; color:#374151; line-height:1.7;">' + wa.cause + '</div>'
+        + '</div>'
+        + '<div style="font-size:10px; font-weight:700; color:#9ca3af; margin-bottom:6px;">おすすめの口ぐせ</div>'
+        + '<div style="display:flex; flex-direction:column; gap:6px;">'
+        + wa.advice.map(function(a) {
+            return '<div style="background:' + td.colorLight + '; border-left:3px solid ' + td.color + '; border-radius:0 8px 8px 0; padding:8px 12px; font-size:13px; font-weight:700; color:#1f2937;">' + a + '</div>';
+          }).join('')
+        + '</div>'
+        + '</div>'
+        + '</div>';
+    }
+  }
 
   return `
   <div class="report-page fade-in">
@@ -1950,6 +2029,8 @@ function buildReportHTML(td, name, dateStr, photoSrc, qrSrc) {
           </div>
         </div>
       </div>
+
+      ${worryHTML}
 
       <!-- DiSCとは？ -->
       <div style="border-radius:10px; overflow:hidden; border:1px solid #e5e7eb">
