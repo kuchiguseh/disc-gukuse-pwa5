@@ -1413,7 +1413,41 @@ function startQuiz() {
   tiebreakTypes = [];
   tiebreakScores = {};
   showScreen('quiz');
-  renderQuestion();
+  showQuizIntro();
+}
+
+function showQuizIntro() {
+  const container = document.getElementById('question-container');
+  document.getElementById('progress-text').textContent = '診断の前に';
+  document.getElementById('progress-bar').style.width = '0%';
+
+  container.innerHTML = `
+    <div class="slide-in" style="text-align:center; padding: 8px 0 16px;">
+      <div style="font-size:40px; margin-bottom:16px;">🌸</div>
+      <div style="font-family:var(--font-display); font-size:20px; font-weight:900; color:var(--gray-900); margin-bottom:16px; line-height:1.5;">
+        一番素の自分で<br>答えてください
+      </div>
+      <div style="background:white; border-radius:14px; padding:20px; margin-bottom:20px; border:1px solid var(--gray-200); text-align:left;">
+        <div style="display:flex; align-items:flex-start; gap:10px; margin-bottom:14px;">
+          <div style="background:#fff0e6; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:14px;">💡</div>
+          <div style="font-size:14px; color:var(--gray-700); line-height:1.7;">職場・家庭・友人関係など、<strong>どの場面でもない"素の自分"</strong>を思い浮かべながら答えてください。</div>
+        </div>
+        <div style="display:flex; align-items:flex-start; gap:10px;">
+          <div style="background:#fff0e6; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:14px;">⚡</div>
+          <div style="font-size:14px; color:var(--gray-700); line-height:1.7;">時間をかけず、<strong>"正解"を選ぼうとせず</strong>、パッと直感で選んでください。最初に「これかな」と思ったものが正解です。</div>
+        </div>
+      </div>
+      <button onclick="renderQuestion()"
+        style="display:inline-flex; align-items:center; justify-content:center; gap:8px;
+               background:linear-gradient(135deg,var(--coral),#fb923c); color:white;
+               border:none; border-radius:100px; padding:16px 48px;
+               font-size:17px; font-weight:700; font-family:var(--font-display);
+               cursor:pointer; box-shadow:0 8px 24px rgba(249,115,22,0.35);
+               width:100%; letter-spacing:0.05em;">
+        ✨ はじめる
+      </button>
+    </div>
+  `;
 }
 
 function shuffle(arr) {
